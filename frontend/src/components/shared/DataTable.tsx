@@ -55,7 +55,7 @@ export function DataTable<T>({
   const gridTemplateColumns = columns.map((c) => c.width ?? "minmax(96px,1fr)").join(" ")
 
   return (
-    <div className="rounded-lg border bg-background" style={maxWidth ? { maxWidth } : undefined}>
+    <div className="overflow-hidden rounded-lg border bg-background" style={maxWidth ? { maxWidth } : undefined}>
       {onExport && (
         <div className="flex justify-end border-b p-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={onExport}>
@@ -64,11 +64,17 @@ export function DataTable<T>({
           </Button>
         </div>
       )}
-      <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight }}>
+      <div
+        className={cn(
+          "bg-background overflow-x-auto overflow-y-auto",
+          onExport && "m-2 rounded-lg border",
+        )}
+        style={{ maxHeight }}
+      >
         <div role="table" className="min-w-full text-sm">
           <div
             role="row"
-            className="sticky top-0 z-10 grid border-b bg-muted/60"
+            className="sticky top-0 z-10 grid border-b bg-muted"
             style={{ gridTemplateColumns }}
           >
             {columns.map((col) => (

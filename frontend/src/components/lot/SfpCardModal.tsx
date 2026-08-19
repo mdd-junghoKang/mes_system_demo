@@ -7,7 +7,7 @@ export function SfpCardModal({ row, colorQuality }: { row: SfpCardRow; colorQual
   const isOk = (colorQuality ?? row.CYCLE_STATE ?? "").split("_")[0] === "OK"
 
   return (
-    <DialogContent className="max-w-2xl">
+    <DialogContent className="sm:max-w-2xl">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           반제품 검사

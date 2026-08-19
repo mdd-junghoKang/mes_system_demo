@@ -141,7 +141,7 @@ export function BedrockQualityPage() {
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {selected?.GET_DATE} {selected?.GET_TIME}

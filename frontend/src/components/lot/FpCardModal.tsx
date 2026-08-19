@@ -4,7 +4,7 @@ import type { FpCardRow } from "@/types/lotCardData"
 
 export function FpCardModal({ row }: { row: FpCardRow }) {
   return (
-    <DialogContent className="max-w-xl">
+    <DialogContent className="sm:max-w-xl">
       <DialogHeader>
         <DialogTitle>완제품 검사</DialogTitle>
       </DialogHeader>

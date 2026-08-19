@@ -102,7 +102,7 @@ export function ProductQualityPage() {
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle>완제품 검사정보</DialogTitle>

@@ -9,7 +9,6 @@ import { CountBarChart } from "@/components/charts/CountBarChart"
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
 import { ProxyImage } from "@/components/shared/ProxyImage"
-import { SortableHeader } from "@/components/shared/SortableHeader"
 import { StatTile } from "@/components/shared/StatTile"
 import { exportRowsToCsv } from "@/lib/csvExport"
 import { defaultDateRange } from "@/lib/dates"
@@ -40,17 +39,23 @@ export function SemiProductQualityPage() {
   const selectedIndex = selected ? sortedRows.indexOf(selected) : -1
 
   const columns: DataTableColumn<SemiProductRow>[] = [
-    { key: "date", header: "작업일", width: "110px", render: (r) => r.GET_DATE },
-    { key: "time", header: "작업시간", width: "90px", render: (r) => r.GET_TIME },
-    { key: "seq", header: "순번", width: "80px", render: (r) => r.DATA_NAME },
-    { key: "item_cd", header: "품번", width: "1fr", render: (r) => r.ITEM_CD },
-    { key: "item_nm", header: "품명", width: "1.5fr", render: (r) => r.ITEM_NM },
-    { key: "lot_no", header: "LOT No", width: "1fr", render: (r) => r.LOT_NO },
+    { key: "date", header: "작업일", render: (r) => r.GET_DATE },
+    { key: "time", header: "작업시간", render: (r) => r.GET_TIME },
+    { key: "seq", header: "순번", render: (r) => r.DATA_NAME },
+    { key: "item_cd", header: "품번", render: (r) => r.ITEM_CD },
+    { key: "item_nm", header: "품명", render: (r) => r.ITEM_NM },
+    { key: "lot_no", header: "LOT No", render: (r) => r.LOT_NO },
     {
       key: "result",
-      width: "110px",
-      align: "center",
-      header: <SortableHeader label="합격여부" onClick={() => setSortResultFirst((v) => !v)} />,
+      header: (
+        <button
+          type="button"
+          className="underline-offset-2 hover:underline"
+          onClick={() => setSortResultFirst((v) => !v)}
+        >
+          합격여부
+        </button>
+      ),
       render: (r) => (
         <span className={r.RESULT === "NG" ? "font-medium text-red-600" : ""}>{r.RESULT}</span>
       ),
@@ -58,8 +63,6 @@ export function SemiProductQualityPage() {
     {
       key: "detail",
       header: "상세정보",
-      width: "100px",
-      align: "center",
       render: (r) => (
         <Button size="sm" variant="outline" onClick={() => setSelected(r)}>
           보기
@@ -115,7 +118,7 @@ export function SemiProductQualityPage() {
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2">
@@ -150,13 +153,13 @@ export function SemiProductQualityPage() {
               <ProxyImage path={selected.DEFECT_DATA} label="패턴 검사" className="h-40 w-full" />
               <div className="rounded-md border p-3 text-sm">
                 <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5">
-                  <dt className="text-muted-foreground">작업시간</dt>
+                  <dt className="whitespace-nowrap text-muted-foreground">작업시간</dt>
                   <dd>{selected.GET_TIME}</dd>
-                  <dt className="text-muted-foreground">제품번호</dt>
+                  <dt className="whitespace-nowrap text-muted-foreground">제품번호</dt>
                   <dd>{selected.ITEM_CD}</dd>
-                  <dt className="text-muted-foreground">LOT No</dt>
+                  <dt className="whitespace-nowrap text-muted-foreground">LOT No</dt>
                   <dd>{selected.LOT_NO}</dd>
-                  <dt className="text-muted-foreground">검사결과</dt>
+                  <dt className="whitespace-nowrap text-muted-foreground">검사결과</dt>
                   <dd>{selected.RESULT}</dd>
                 </dl>
               </div>

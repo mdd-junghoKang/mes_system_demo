@@ -8,7 +8,7 @@ export function MoldCardModal({ row }: { row: MoldCardRow }) {
   const weight = row.INJECT_193
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="sm:max-w-3xl">
       <DialogHeader>
         <DialogTitle>성형 상세</DialogTitle>
       </DialogHeader>

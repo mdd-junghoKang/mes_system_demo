@@ -14,13 +14,14 @@ export function useMainDashboardData(startIso: string, endIso: string, lineInput
     queryFn: async () => {
       await sleep(300)
 
+      const seed = `${startIso}|${endIso}|${lineInput}`
       const bedrock = mockBedrockData(startIso, endIso)
       const semi = mockSemiProductData(startIso, endIso)
       const product = mockProductData(startIso, endIso)
 
       return {
-        assemble: mockAssembleRate(),
-        aggGraph: mockAggGraph(startIso, endIso),
+        assemble: mockAssembleRate(seed),
+        aggGraph: mockAggGraph(startIso, endIso, seed),
         bedStatus: { status_data: bedrock.status_data },
         bedGraph: { chart_data: bedrock.chart_data ?? [] },
         semi: { graph_data: semi.graph_data ?? [] },

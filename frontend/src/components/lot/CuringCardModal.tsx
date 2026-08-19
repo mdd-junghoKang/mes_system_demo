@@ -30,7 +30,7 @@ export function CuringCardModal({ rows }: { rows: CuringCardRow[] }) {
   }
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="sm:max-w-3xl">
       <DialogHeader>
         <DialogTitle>양생 온도 추이</DialogTitle>
       </DialogHeader>

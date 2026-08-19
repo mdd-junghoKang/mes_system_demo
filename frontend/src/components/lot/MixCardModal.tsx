@@ -14,7 +14,7 @@ export function MixCardModal({ rows }: { rows: MixCardRow[] }) {
   ]
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="sm:max-w-3xl">
       <DialogHeader>
         <DialogTitle>믹싱 상세 (원자재별 배합 상세)</DialogTitle>
       </DialogHeader>

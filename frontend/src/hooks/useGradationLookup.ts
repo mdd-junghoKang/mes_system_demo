@@ -16,11 +16,12 @@ export function useGradationLookup(dateIso: string, lineInput: string | null, as
     enabled: Boolean(dateIso && lineInput),
     queryFn: async () => {
       await sleep(300)
+      const seed = `${dateIso}|${lineInput}|${assembleType}`
       return {
-        batchInfo: mockBatchInfo(dateIso),
-        assembleRate: assembleType !== "select-none" ? mockLookupAssembleRate() : { assemble_rates: [] },
+        batchInfo: mockBatchInfo(dateIso, seed),
+        assembleRate: assembleType !== "select-none" ? mockLookupAssembleRate(seed) : { assemble_rates: [] },
         graph: (assembleType !== "select-none"
-          ? mockAssembleGraphData(assembleType, dateIso)
+          ? mockAssembleGraphData(assembleType, dateIso, seed)
           : { graph_data: [] }) as AssembleGraphDataResponse,
       }
     },

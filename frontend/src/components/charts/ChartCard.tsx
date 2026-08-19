@@ -31,8 +31,8 @@ export function ChartCard({
         <CardTitle className="flex items-center gap-2 text-sm font-semibold">
           {Icon && <Icon className="size-4 text-muted-foreground" />}
           {title}
-        </CardTitle>
         {badge}
+        </CardTitle>
       </CardHeader>
       <CardContent className={cn("relative flex-1")} style={{ height }}>
         {isLoading ? (

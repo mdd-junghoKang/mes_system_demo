@@ -8,7 +8,7 @@ export function useGradationCurve(dateIso: string, lineInput: string | null) {
     enabled: Boolean(dateIso && lineInput),
     queryFn: async () => {
       await sleep(400)
-      return mockGradationCurve(dateIso, null)
+      return mockGradationCurve(dateIso, null, `${dateIso}|${lineInput}`)
     },
   })
 }
@@ -19,7 +19,7 @@ export function useGradationCurveBatch(dateIso: string, lineInput: string | null
     enabled: Boolean(dateIso && lineInput && batchNo),
     queryFn: async () => {
       await sleep(200)
-      return mockGradationCurve(dateIso, batchNo)
+      return mockGradationCurve(dateIso, batchNo, `${dateIso}|${lineInput}|${batchNo}`)
     },
   })
 }

@@ -14,7 +14,7 @@ export function AggCardModal({ rows }: { rows: AggCardRow[] }) {
   ]
 
   return (
-    <DialogContent className="max-w-3xl">
+    <DialogContent className="sm:max-w-3xl">
       <DialogHeader>
         <DialogTitle>골재입도 상세</DialogTitle>
       </DialogHeader>
