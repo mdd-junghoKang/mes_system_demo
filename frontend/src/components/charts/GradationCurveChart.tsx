@@ -1,6 +1,17 @@
-import { Line } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
+import {
+  CartesianGrid,
+  Label,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
 import { SIEVE_LABELS } from "@/hooks/useGradationCurve"
+import { AXIS_TICK, GRID_STROKE, LEGEND_STYLE } from "./utils"
 
 const PALETTE = ["#e11d48", "#2563eb", "#16a34a", "#ea580c", "#7c3aed", "#0891b2", "#db2777"]
 
@@ -11,58 +22,66 @@ type Props = {
 }
 
 export function GradationCurveChart({ series, lowLine, highLine }: Props) {
-  const chartData: ChartData<"line"> = {
-    labels: SIEVE_LABELS,
-    datasets: [
-      ...series.map((s, i) => ({
-        label: s.label,
-        data: s.data,
-        borderColor: PALETTE[i % PALETTE.length],
-        backgroundColor: PALETTE[i % PALETTE.length],
-        borderWidth: 1.5,
-        pointRadius: 2,
-        tension: 0.2,
-      })),
-      ...(lowLine
-        ? [
-            {
-              label: "최소값",
-              data: lowLine,
-              borderColor: "#6366f1",
-              borderWidth: 2,
-              pointRadius: 0,
-              borderDash: [6, 4],
-              tension: 0,
-            },
-          ]
-        : []),
-      ...(highLine
-        ? [
-            {
-              label: "최대값",
-              data: highLine,
-              borderColor: "#14b8a6",
-              borderWidth: 2,
-              pointRadius: 0,
-              borderDash: [6, 4],
-              tension: 0,
-            },
-          ]
-        : []),
-    ],
-  }
+  const rows = SIEVE_LABELS.map((label, i) => {
+    const row: Record<string, string | number | undefined> = { label }
+    series.forEach((s, si) => {
+      row[`s${si}`] = s.data[i]
+    })
+    if (lowLine) row.low = lowLine[i]
+    if (highLine) row.high = highLine[i]
+    return row
+  })
 
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: { min: 0, max: 100, ticks: { stepSize: 20 }, title: { display: true, text: "통과율 (%)" } },
-      x: { title: { display: true, text: "체 크기 (mm)" } },
-    },
-    plugins: {
-      legend: { position: "bottom", labels: { boxWidth: 12, boxHeight: 12 } },
-    },
-  }
-
-  return <Line data={chartData} options={options} />
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 20, left: 0 }}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={AXIS_TICK}>
+          <Label value="체 크기 (mm)" position="insideBottom" offset={-14} fontSize={11} fill="#6b7280" />
+        </XAxis>
+        <YAxis domain={[0, 100]} ticks={[0, 20, 40, 60, 80, 100]} tick={AXIS_TICK} width={52}>
+          <Label value="통과율 (%)" angle={-90} position="insideLeft" fontSize={11} fill="#6b7280" />
+        </YAxis>
+        <Tooltip />
+        <Legend verticalAlign="bottom" iconSize={12} wrapperStyle={LEGEND_STYLE} />
+        {series.map((s, si) => (
+          <Line
+            key={si}
+            type="monotone"
+            dataKey={`s${si}`}
+            name={s.label}
+            stroke={PALETTE[si % PALETTE.length]}
+            strokeWidth={1.5}
+            dot={{ r: 2 }}
+            activeDot={{ r: 4 }}
+            isAnimationActive={false}
+          />
+        ))}
+        {lowLine && (
+          <Line
+            type="linear"
+            dataKey="low"
+            name="최소값"
+            stroke="#6366f1"
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            dot={false}
+            isAnimationActive={false}
+          />
+        )}
+        {highLine && (
+          <Line
+            type="linear"
+            dataKey="high"
+            name="최대값"
+            stroke="#14b8a6"
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            dot={false}
+            isAnimationActive={false}
+          />
+        )}
+      </LineChart>
+    </ResponsiveContainer>
+  )
 }

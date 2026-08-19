@@ -1,5 +1,16 @@
-import { Bar } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
+import { GRID_STROKE } from "./utils"
 
 type Props = {
   labels: string[]
@@ -17,28 +28,31 @@ export function MaterialDeviationChart({ labels, values }: Props) {
   const step = maxAbs > 5 ? 1 : maxAbs > 1 ? 0.5 : 0.1
   const bound = Math.ceil(maxAbs / step) * step
 
-  const chartData: ChartData<"bar"> = {
-    labels,
-    datasets: [
-      {
-        label: "차이율 (%)",
-        data: values,
-        backgroundColor: values.map(colorFor),
-        borderRadius: 3,
-      },
-    ],
-  }
+  const rows = labels.map((label, i) => ({ label, value: values[i] }))
 
-  const options: ChartOptions<"bar"> = {
-    indexAxis: "y",
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { min: -bound, max: bound, grid: { color: "#e5e7eb" } },
-      y: { ticks: { font: { size: 11 } } },
-    },
-    plugins: { legend: { display: false } },
-  }
-
-  return <Bar data={chartData} options={options} />
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart
+        data={rows}
+        layout="vertical"
+        margin={{ top: 8, right: 16, bottom: 0, left: 0 }}
+      >
+        <CartesianGrid stroke={GRID_STROKE} horizontal={false} />
+        <XAxis type="number" domain={[-bound, bound]} tick={{ fontSize: 11, fill: "#6b7280" }} />
+        <YAxis
+          type="category"
+          dataKey="label"
+          tick={{ fontSize: 11, fill: "#6b7280" }}
+          width={90}
+        />
+        <Tooltip formatter={(value) => `${Number(value).toFixed(2)} %`} />
+        <ReferenceLine x={0} stroke="#9ca3af" />
+        <Bar dataKey="value" name="차이율 (%)" radius={3} isAnimationActive={false}>
+          {rows.map((r, i) => (
+            <Cell key={i} fill={colorFor(r.value)} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
 }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
-import { Line } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
 
 import { Badge } from "@/components/ui/badge"
 import { ChartCard } from "@/components/charts/ChartCard"
+import { MiniLineChart } from "@/components/charts/MiniLineChart"
 import { StatTile } from "@/components/shared/StatTile"
 import { ZoneBarsGrid } from "@/components/shared/ZoneBarsGrid"
 import { MotionGaugeBars } from "@/components/shared/MotionGaugeBars"
@@ -29,39 +28,6 @@ export function ProductionMonitoringPage() {
 
   const isNormal = current?.PLAY_YN === "Y"
   const height = current?.HEIGHT ?? null
-
-  const cycleChart: ChartData<"line"> = {
-    labels: graph1.map((r) => r.INDATE),
-    datasets: [
-      {
-        label: "사이클 타임",
-        data: graph1.map((r) => Number(r["INJECT_153"] ?? 0)),
-        borderColor: "#2563eb",
-        backgroundColor: "#2563eb",
-        pointRadius: 0,
-        borderWidth: 1.5,
-      },
-    ],
-  }
-  const pressChart: ChartData<"line"> = {
-    labels: graph2.map((r) => r.INDATE),
-    datasets: [
-      {
-        label: "프레스 타임",
-        data: graph2.map((r) => Number(r["INJECT_106"] ?? 0)),
-        borderColor: "#ea580c",
-        backgroundColor: "#ea580c",
-        pointRadius: 0,
-        borderWidth: 1.5,
-      },
-    ],
-  }
-  const lineOptions: ChartOptions<"line"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { x: { ticks: { maxTicksLimit: 8 } } },
-  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -125,10 +91,20 @@ export function ProductionMonitoringPage() {
         </div>
         <div className="grid grid-cols-1 gap-4">
           <ChartCard title="사이클 타임 추이" isLoading={isLoading} isEmpty={graph1.length === 0} height={140}>
-            <Line data={cycleChart} options={lineOptions} />
+            <MiniLineChart
+              labels={graph1.map((r) => r.INDATE)}
+              values={graph1.map((r) => Number(r["INJECT_153"] ?? 0))}
+              seriesLabel="사이클 타임"
+              color="#2563eb"
+            />
           </ChartCard>
           <ChartCard title="프레스 타임 추이" isLoading={isLoading} isEmpty={graph2.length === 0} height={140}>
-            <Line data={pressChart} options={lineOptions} />
+            <MiniLineChart
+              labels={graph2.map((r) => r.INDATE)}
+              values={graph2.map((r) => Number(r["INJECT_106"] ?? 0))}
+              seriesLabel="프레스 타임"
+              color="#ea580c"
+            />
           </ChartCard>
         </div>
       </div>

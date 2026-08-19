@@ -1,5 +1,15 @@
-import { Bar } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
+import { GRID_STROKE, LEGEND_STYLE } from "./utils"
 
 type Series = {
   label: string
@@ -13,32 +23,34 @@ type Props = {
 }
 
 export function CountBarChart({ labels, series }: Props) {
-  const chartData: ChartData<"bar"> = {
-    labels,
-    datasets: series.map((s) => ({
-      label: s.label,
-      data: s.data,
-      backgroundColor: s.color,
-      borderRadius: 4,
-      barThickness: 24,
-    })),
-  }
+  const rows = labels.map((label, i) => {
+    const row: Record<string, string | number> = { label }
+    series.forEach((s, si) => {
+      row[`s${si}`] = s.data[i]
+    })
+    return row
+  })
 
-  const options: ChartOptions<"bar"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { grid: { display: false }, ticks: { color: "#6b7280", font: { size: 12 } } },
-      y: {
-        beginAtZero: true,
-        ticks: { color: "#6b7280", font: { size: 12 } },
-        grid: { color: "#e5e7eb" },
-      },
-    },
-    plugins: {
-      legend: { position: "bottom", labels: { boxWidth: 12, boxHeight: 12 } },
-    },
-  }
-
-  return <Bar data={chartData} options={options} />
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={rows} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#6b7280" }} />
+        <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} width={44} allowDecimals={false} />
+        <Tooltip />
+        <Legend verticalAlign="bottom" iconSize={12} wrapperStyle={LEGEND_STYLE} />
+        {series.map((s, si) => (
+          <Bar
+            key={si}
+            dataKey={`s${si}`}
+            name={s.label}
+            fill={s.color}
+            radius={[4, 4, 0, 0]}
+            barSize={24}
+            isAnimationActive={false}
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  )
 }

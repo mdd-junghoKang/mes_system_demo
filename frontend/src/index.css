@@ -132,3 +132,19 @@
     cursor: pointer;
     }
 }
+/* --- DataTable (AG Grid) --- */
+/* 헤더 정렬: 컬럼 align 값에 맞춰 라벨을 좌/우/가운데로 보낸다. */
+.dt-header-right .ag-header-cell-label {
+  justify-content: flex-end;
+}
+.dt-header-center .ag-header-cell-label {
+  justify-content: center;
+}
+/* onRowClick이 있는 표만 커서를 포인터로. */
+.dt-row-clickable {
+  cursor: pointer;
+}
+/* isRowActive로 선택된 행 강조 (기존 CSS Grid 표의 bg-accent 대응). */
+.dt-row-active .ag-cell {
+  background-color: var(--accent);
+}

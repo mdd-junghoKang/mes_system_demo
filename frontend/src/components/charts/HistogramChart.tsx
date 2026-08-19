@@ -1,5 +1,14 @@
-import { Bar } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
+import { GRID_STROKE } from "./utils"
 
 type Props = {
   labels: (string | number)[]
@@ -8,20 +17,24 @@ type Props = {
 }
 
 export function HistogramChart({ labels, counts, color = "#2563eb" }: Props) {
-  const chartData: ChartData<"bar"> = {
-    labels: labels.map(String),
-    datasets: [{ label: "빈도", data: counts, backgroundColor: color, borderRadius: 3, barThickness: 18 }],
-  }
+  const rows = labels.map((label, i) => ({ label: String(label), count: counts[i] }))
 
-  const options: ChartOptions<"bar"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-      y: { beginAtZero: true, grid: { color: "#e5e7eb" } },
-    },
-    plugins: { legend: { display: false } },
-  }
-
-  return <Bar data={chartData} options={options} />
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={rows} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#6b7280" }} />
+        <YAxis tick={{ fontSize: 11, fill: "#6b7280" }} width={40} allowDecimals={false} />
+        <Tooltip />
+        <Bar
+          dataKey="count"
+          name="빈도"
+          fill={color}
+          radius={[3, 3, 0, 0]}
+          barSize={18}
+          isAnimationActive={false}
+        />
+      </BarChart>
+    </ResponsiveContainer>
+  )
 }

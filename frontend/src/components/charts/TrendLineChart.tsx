@@ -1,5 +1,16 @@
-import { Line } from "react-chartjs-2"
-import type { ChartData, ChartOptions } from "chart.js"
+import {
+  CartesianGrid,
+  Label,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
+import { AXIS_TICK, GRID_STROKE, paddedDomain, tickInterval } from "./utils"
 
 type Props = {
   labels: string[]
@@ -12,74 +23,41 @@ type Props = {
 
 export function TrendLineChart({ labels, data, seriesLabel, yTitle, lowLine, highLine }: Props) {
   const hasThresholds = typeof lowLine === "number" && typeof highLine === "number"
+  const rows = labels.map((label, i) => ({ label, value: data[i] }))
+  const domain = paddedDomain(hasThresholds ? [...data, lowLine, highLine] : data)
 
-  const chartData: ChartData<"line"> = {
-    labels,
-    datasets: [
-      ...(hasThresholds
-        ? [
-            {
-              label: "하한선",
-              data: labels.map(() => lowLine as number),
-              borderColor: "#6366f1",
-              borderWidth: 2,
-              pointRadius: 0,
-              borderDash: [6, 4],
-              tension: 0,
-            },
-          ]
-        : []),
-      {
-        label: seriesLabel,
-        data,
-        borderColor: "#e11d48",
-        backgroundColor: "#e11d48",
-        borderWidth: 1.5,
-        pointRadius: 1.5,
-        tension: 0,
-      },
-      ...(hasThresholds
-        ? [
-            {
-              label: "상한선",
-              data: labels.map(() => highLine as number),
-              borderColor: "#14b8a6",
-              borderWidth: 2,
-              pointRadius: 0,
-              borderDash: [6, 4],
-              tension: 0,
-            },
-          ]
-        : []),
-    ],
-  }
-
-  const rangeValues = hasThresholds ? [...data, lowLine as number, highLine as number] : data
-  const minVal = Math.min(...rangeValues)
-  const maxVal = Math.max(...rangeValues)
-  const padding = Math.max((maxVal - minVal) * 0.15, 0.1)
-
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        min: Math.floor(minVal - padding),
-        max: Math.ceil(maxVal + padding),
-        title: { display: true, text: yTitle },
-        grid: { color: "#e5e7eb" },
-      },
-      x: {
-        title: { display: true, text: "TIME" },
-        ticks: { maxTicksLimit: 8 },
-        grid: { display: false },
-      },
-    },
-    plugins: {
-      legend: { display: hasThresholds, position: "bottom" },
-      tooltip: { callbacks: { label: (ctx) => ` ${Number(ctx.parsed.y).toFixed(2)}` } },
-    },
-  }
-
-  return <Line data={chartData} options={options} />
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 20, left: 0 }}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={AXIS_TICK} interval={tickInterval(rows.length, 8)}>
+          <Label value="TIME" position="insideBottom" offset={-14} fontSize={11} fill="#6b7280" />
+        </XAxis>
+        <YAxis domain={domain} tick={AXIS_TICK} width={52}>
+          <Label value={yTitle} angle={-90} position="insideLeft" fontSize={11} fill="#6b7280" />
+        </YAxis>
+        <Tooltip formatter={(value) => Number(value).toFixed(2)} />
+        {hasThresholds && (
+          <ReferenceLine y={lowLine} stroke="#6366f1" strokeWidth={2} strokeDasharray="6 4">
+            <Label value={`하한 ${lowLine}`} position="insideBottomRight" fontSize={10} fill="#6366f1" />
+          </ReferenceLine>
+        )}
+        {hasThresholds && (
+          <ReferenceLine y={highLine} stroke="#14b8a6" strokeWidth={2} strokeDasharray="6 4">
+            <Label value={`상한 ${highLine}`} position="insideTopRight" fontSize={10} fill="#14b8a6" />
+          </ReferenceLine>
+        )}
+        <Line
+          type="linear"
+          dataKey="value"
+          name={seriesLabel}
+          stroke="#e11d48"
+          strokeWidth={1.5}
+          dot={{ r: 1.5 }}
+          activeDot={{ r: 3 }}
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  )
 }

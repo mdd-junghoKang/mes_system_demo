@@ -34,7 +34,7 @@ export function ChartCard({
         {badge}
         </CardTitle>
       </CardHeader>
-      <CardContent className={cn("relative flex-1")} style={{ height }}>
+      <CardContent className={cn("relative shrink-0")} style={{ height }}>
         {isLoading ? (
           <Skeleton className="h-full w-full" />
         ) : isEmpty ? (
