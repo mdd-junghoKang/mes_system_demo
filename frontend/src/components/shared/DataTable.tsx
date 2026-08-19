@@ -28,6 +28,15 @@ type Props<T> = {
   maxHeight?: number
   emptyMessage?: string
   onExport?: () => void
+  /**
+   * Constrains the table+card to a max width (e.g. "56rem") instead of
+   * always stretching to fill the page. Use this when the columns are few
+   * and short — forcing sparse content to span a wide container just
+   * pushes left-aligned text and right-aligned numbers apart, leaving one
+   * big dead gap in the middle. Omit for tables with enough columns/content
+   * to fill the width naturally.
+   */
+  maxWidth?: string
 }
 
 const alignClass = { left: "text-left", right: "text-right", center: "text-center" } as const
@@ -41,11 +50,12 @@ export function DataTable<T>({
   maxHeight = 480,
   emptyMessage = "해당되는 데이터가 없습니다",
   onExport,
+  maxWidth,
 }: Props<T>) {
   const gridTemplateColumns = columns.map((c) => c.width ?? "minmax(96px,1fr)").join(" ")
 
   return (
-    <div className="rounded-lg border bg-background">
+    <div className="rounded-lg border bg-background" style={maxWidth ? { maxWidth } : undefined}>
       {onExport && (
         <div className="flex justify-end border-b p-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={onExport}>
@@ -58,7 +68,7 @@ export function DataTable<T>({
         <div role="table" className="min-w-full text-sm">
           <div
             role="row"
-            className="sticky top-0 z-10 grid border-b bg-background"
+            className="sticky top-0 z-10 grid border-b bg-muted/60"
             style={{ gridTemplateColumns }}
           >
             {columns.map((col) => (
@@ -66,7 +76,7 @@ export function DataTable<T>({
                 key={col.key}
                 role="columnheader"
                 className={cn(
-                  "h-10 flex items-center px-3 font-medium text-foreground whitespace-nowrap",
+                  "h-10 flex items-center px-3 text-xs font-semibold text-muted-foreground whitespace-nowrap",
                   alignClass[col.align ?? "left"],
                   col.align === "right" && "justify-end",
                   col.align === "center" && "justify-center",

@@ -16,6 +16,7 @@ import { ChartCard } from "@/components/charts/ChartCard"
 import { TrendLineChart } from "@/components/charts/TrendLineChart"
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
 import { LineSelector } from "@/components/shared/LineSelector"
+import { cn } from "@/lib/utils"
 import { useAggInfo, sortedActiveLines } from "@/hooks/useAggInfo"
 import { type AssembleType, useBatchImages, useGradationLookup } from "@/hooks/useGradationLookup"
 import { copyImagePath } from "@/lib/imageProxy"
@@ -44,10 +45,24 @@ export function GradationLookupPage() {
   const batches = data?.batchInfo ?? []
   const chartTitle = assembleType === "P" ? "입형률" : "조립률"
 
+  function isOutOfSpec(avg: number) {
+    return typeof lowLine === "number" && typeof highLine === "number" && (avg < lowLine || avg > highLine)
+  }
+
   const columns: DataTableColumn<BatchInfoRow>[] = [
     { key: "batch", header: "Batch No", width: "1fr", render: (r) => r.BATCH_NO },
-    { key: "time", header: "Time", width: "2fr", render: (r) => r.GETHERING_TIME },
-    { key: "avg", header: "평균", width: "1fr", align: "right", render: (r) => r.AVG_VALUE },
+    { key: "time", header: "Time", width: "1.6fr", render: (r) => r.GETHERING_TIME },
+    {
+      key: "avg",
+      header: "평균",
+      width: "1fr",
+      align: "right",
+      render: (r) => (
+        <span className={cn(isOutOfSpec(r.AVG_VALUE) && "font-semibold text-red-600 dark:text-red-400")}>
+          {r.AVG_VALUE}
+        </span>
+      ),
+    },
     { key: "max", header: "최대", width: "1fr", align: "right", render: (r) => r.MAX_VALUE },
     { key: "min", header: "최소", width: "1fr", align: "right", render: (r) => r.MIN_VALUE },
   ]
