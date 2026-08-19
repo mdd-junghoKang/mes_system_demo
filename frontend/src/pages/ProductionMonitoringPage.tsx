@@ -11,7 +11,8 @@ import { useProdMonitoring } from "@/hooks/useProdMonitoring"
 import { cn } from "@/lib/utils"
 
 function formatScaled(raw: number) {
-  return raw >= 10 ? raw / 10 : raw
+  const scaled = raw >= 10 ? raw / 10 : raw
+  return Number(scaled.toFixed(2))
 }
 
 export function ProductionMonitoringPage() {

@@ -26,7 +26,7 @@ export function StatTile({ label, value, suffix, accent = "blue", emptyMessage, 
       <div className={cn("h-1", accentBar[accent])} />
       <div className="flex items-center justify-between p-4">
         <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="whitespace-nowrap text-[11px] text-muted-foreground">{label}</p>
           {isEmpty ? (
             <p className="mt-1 text-sm text-muted-foreground">
               {emptyMessage ?? "해당되는 데이터가 없습니다"}

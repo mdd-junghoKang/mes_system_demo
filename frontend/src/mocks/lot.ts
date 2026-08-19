@@ -13,7 +13,12 @@ import type {
 const ITEM_NAMES = ["6mm 골재블록", "8mm 골재블록", "10mm 골재블록"]
 const YN = ["Y", "N"] as const
 
-export function mockLotList(start: string, end: string, lotNo: string): LotTrackingResponse {
+export function mockLotList(
+  start: string,
+  end: string,
+  query: string,
+  field: "LOT_NO" | "MIX_NO" = "LOT_NO",
+): LotTrackingResponse {
   const days = dateRange(start, end)
   const rows = days.flatMap((day, di) =>
     Array.from({ length: randomInt(1, 3) }, (_, i) => {
@@ -32,7 +37,7 @@ export function mockLotList(start: string, end: string, lotNo: string): LotTrack
       }
     }),
   )
-  const filtered = lotNo ? rows.filter((r) => r.LOT_NO.includes(lotNo)) : rows
+  const filtered = query ? rows.filter((r) => r[field].includes(query)) : rows
   return { status: "success", lot_tracking_list: filtered, mix_tracking_list: filtered }
 }
 

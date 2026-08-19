@@ -19,7 +19,7 @@ export function useMixSearch(mixerNo: string, startIso: string, endIso: string) 
     enabled: Boolean(startIso && endIso),
     queryFn: async () => {
       await sleep(300)
-      return mockLotList(startIso, endIso, mixerNo)
+      return mockLotList(startIso, endIso, mixerNo, "MIX_NO")
     },
   })
 }

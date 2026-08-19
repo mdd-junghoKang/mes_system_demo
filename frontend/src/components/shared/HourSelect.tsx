@@ -17,7 +17,7 @@ export function HourSelect({ value, onChange }: Props) {
   return (
     <Select value={value} onValueChange={(v) => v && onChange(v)}>
       <SelectTrigger className="w-[80px]">
-        <SelectValue />
+        <SelectValue>{value}시</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {HOURS.map((h) => (
