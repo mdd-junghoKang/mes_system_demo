@@ -3,8 +3,9 @@ import { MousePointerClick } from "lucide-react"
 
 import { Label } from "@/components/ui/label"
 import { AutocompleteInput } from "@/components/shared/AutocompleteInput"
-import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
+import { CardGrid } from "@/components/shared/CardGrid"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
+import { StatusChip } from "@/components/shared/StatusChip"
 import { LotFlowVisualization } from "@/components/lot/LotFlowVisualization"
 import { useFlowTracking, useMixSearch } from "@/hooks/useLotTracking"
 import { defaultDateRange } from "@/lib/dates"
@@ -16,7 +17,10 @@ export function BackwardTrackingPage() {
   const [appliedRange, setAppliedRange] = useState(initial)
   const [draftMixerNo, setDraftMixerNo] = useState("")
   const [appliedMixerNo, setAppliedMixerNo] = useState("")
+  // LOT_NO만으로는 중복된 값이 있을 때 클릭한 카드가 아닌 다른 카드를 가리킬 수 있어서,
+  // 문자열이 아니라 클릭된 행 객체 자체를 들고 있는다 (LotHistoryPage와 동일한 방식).
   const [selectedLot, setSelectedLot] = useState<LotTrackingRow | null>(null)
+  const [searchNonce, setSearchNonce] = useState(0)
 
   const { data, isLoading, isFetching, isError } = useMixSearch(appliedMixerNo, appliedRange.start, appliedRange.end)
   const { data: flow } = useFlowTracking(selectedLot?.LOT_NO ?? null)
@@ -28,28 +32,7 @@ export function BackwardTrackingPage() {
   ]
 
   const rows = data?.mix_tracking_list ?? []
-
-  // 스캔 시 바로 봐야 하는 값만 표에 남기고, 작업지시번호/품번/배치번호는 행 클릭 시
-  // 공정 흐름 패널에 뜨는 "코드 정보"로 옮긴다 (컬럼이 많아 가로 스크롤이 생기던 문제 해결).
-  const columns: DataTableColumn<LotTrackingRow>[] = [
-    { key: "date", header: "작업일", width: "minmax(150px,1fr)", render: (r) => r.WORK_DATE },
-    { key: "lot", header: "LOT No", width: "minmax(160px,1.1fr)", render: (r) => r.LOT_NO },
-    { key: "item_nm", header: "품명", width: "minmax(180px,1.5fr)", render: (r) => r.ITEM_NM },
-    {
-      key: "color",
-      header: "반제품 검사",
-      width: "minmax(150px,0.8fr)",
-      align: "center",
-      render: (r) => r.COLOR_QUALITY,
-    },
-    {
-      key: "appearance",
-      header: "완제품 수집",
-      width: "minmax(150px,0.8fr)",
-      align: "center",
-      render: (r) => r.APPEARANCE_QUALITY,
-    },
-  ]
+  const showLoading = isLoading || isFetching
 
   return (
     <div className="flex flex-col gap-4">
@@ -61,6 +44,7 @@ export function BackwardTrackingPage() {
         onSearch={() => {
           setAppliedRange(draftRange)
           setAppliedMixerNo(draftMixerNo)
+          setSearchNonce((n) => n + 1)
         }}
       >
         <div className="grid gap-1.5">
@@ -76,21 +60,36 @@ export function BackwardTrackingPage() {
         </div>
       </DateRangeSearchBar>
 
-      {rows.length > 0 && (
+      {!showLoading && rows.length > 0 && (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MousePointerClick className="size-3.5" />
-          행을 클릭하면 아래에서 LOT 공정 흐름을 확인할 수 있습니다
+          카드를 클릭하면 아래에서 LOT 공정 흐름을 확인할 수 있습니다
         </p>
       )}
 
-      <DataTable
-        columns={columns}
+      <CardGrid
+        key={searchNonce}
         rows={rows}
         getRowKey={(r, i) => `${r.LOT_NO}-${i}`}
-        onRowClick={setSelectedLot}
-        isRowActive={(r) => r.LOT_NO === selectedLot?.LOT_NO}
-        isLoading={isLoading || isFetching}
+        onCardClick={setSelectedLot}
+        isCardActive={(r) => r === selectedLot}
+        isLoading={showLoading}
         isError={isError}
+        renderCard={(row) => (
+          <>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-lg font-bold tracking-tight">{row.LOT_NO}</p>
+              <p className="shrink-0 text-xs text-muted-foreground">{row.WORK_DATE}</p>
+            </div>
+            <p className="mt-1 truncate text-sm text-muted-foreground" title={row.ITEM_NM}>
+              {row.ITEM_NM}
+            </p>
+            <div className="mt-3 flex items-start gap-1 border-t pt-3">
+              <StatusChip label="반제품 검사" value={row.COLOR_QUALITY} />
+              <StatusChip label="완제품 수집" value={row.APPEARANCE_QUALITY} />
+            </div>
+          </>
+        )}
       />
 
       {selectedLot && <LotFlowVisualization lot={selectedLot} flowData={flow?.lot_flow_list} />}

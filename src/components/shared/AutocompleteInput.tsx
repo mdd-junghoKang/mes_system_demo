@@ -23,10 +23,10 @@ export function AutocompleteInput({ value, onChange, suggestions, placeholder, i
   const blurTimeout = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const query = value.trim().toLowerCase()
-  const filtered = (query ? suggestions.filter((s) => s.toLowerCase().includes(query)) : suggestions).slice(
-    0,
-    8,
-  )
+  // 드롭다운 자체가 max-h-56 overflow-y-auto라서 이미 스크롤되므로 개수를 임의로
+  // 자를 필요가 없다 — 예전에 8개로 잘라뒀던 탓에 후보가 많을 때 스크롤할 것도 없이
+  // 나머지가 통째로 안 보이는 문제가 있었다.
+  const filtered = query ? suggestions.filter((s) => s.toLowerCase().includes(query)) : suggestions
 
   return (
     <div className="relative">

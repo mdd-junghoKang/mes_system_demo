@@ -3,8 +3,9 @@ import { MousePointerClick } from "lucide-react"
 
 import { Label } from "@/components/ui/label"
 import { AutocompleteInput } from "@/components/shared/AutocompleteInput"
-import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
+import { CardGrid } from "@/components/shared/CardGrid"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
+import { StatusChip } from "@/components/shared/StatusChip"
 import { LotFlowVisualization } from "@/components/lot/LotFlowVisualization"
 import { useFlowTracking, useLotSearch } from "@/hooks/useLotTracking"
 import { defaultDateRange } from "@/lib/dates"
@@ -16,9 +17,13 @@ export function LotHistoryPage() {
   const [appliedRange, setAppliedRange] = useState(initial)
   const [draftLotNo, setDraftLotNo] = useState("")
   const [appliedLotNo, setAppliedLotNo] = useState("")
-  // LOT_NO만으로는 중복된 값이 있을 때 클릭한 행이 아닌 다른 행을 가리킬 수 있어서,
+  // LOT_NO만으로는 중복된 값이 있을 때 클릭한 카드가 아닌 다른 카드를 가리킬 수 있어서,
   // 문자열이 아니라 클릭된 행 객체 자체를 들고 있는다 (BackwardTrackingPage와 동일한 방식).
   const [selectedRow, setSelectedRow] = useState<LotTrackingRow | null>(null)
+  // 조회 조건이 이전과 똑같으면(같은 범위로 다시 조회) 검색 조건 문자열도 그대로라
+  // CardGrid가 리마운트되지 않는다. "조회 버튼을 눌렀다"는 동작 자체로 카드 펼침
+  // 상태가 리셋되도록, 클릭할 때마다 증가하는 값을 key에 같이 넣는다.
+  const [searchNonce, setSearchNonce] = useState(0)
 
   const { data, isLoading, isFetching, isError } = useLotSearch(appliedLotNo, appliedRange.start, appliedRange.end)
   const { data: flow } = useFlowTracking(selectedRow?.LOT_NO ?? null)
@@ -31,29 +36,7 @@ export function LotHistoryPage() {
   ]
 
   const rows = data?.lot_tracking_list ?? []
-
-  // 스캔 시 바로 봐야 하는 값만 표에 남기고, 나머지 추적용 코드는 행을 클릭했을 때 보이는
-  // "코드 정보"로 옮긴다 (컬럼이 많아 가로 스크롤이 생기던 문제 해결).
-  const columns: DataTableColumn<LotTrackingRow>[] = [
-    { key: "date", header: "작업일", width: "minmax(150px,1fr)", render: (r) => r.WORK_DATE },
-    { key: "lot", header: "LOT No", width: "minmax(160px,1.1fr)", render: (r) => r.LOT_NO },
-    { key: "item_nm", header: "품명", width: "minmax(180px,1.2fr)", render: (r) => r.ITEM_NM },
-    {
-      key: "color",
-      header: "반제품 검사",
-      width: "minmax(110px,0.8fr)",
-      align: "center",
-      render: (r) => r.COLOR_QUALITY,
-    },
-    {
-      key: "appearance",
-      header: "완제품 수집",
-      width: "minmax(110px,0.8fr)",
-      align: "center",
-      render: (r) => r.APPEARANCE_QUALITY,
-    },
-    { key: "finished", header: "큐빙정보", width: "minmax(100px,0.8fr)", align: "center", render: (r) => r.FINISHED_LOT },
-  ]
+  const showLoading = isLoading || isFetching
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,6 +48,7 @@ export function LotHistoryPage() {
         onSearch={() => {
           setAppliedRange(draftRange)
           setAppliedLotNo(draftLotNo)
+          setSearchNonce((n) => n + 1)
         }}
       >
         <div className="grid gap-1.5">
@@ -80,21 +64,37 @@ export function LotHistoryPage() {
         </div>
       </DateRangeSearchBar>
 
-      {rows.length > 0 && (
+      {!showLoading && rows.length > 0 && (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <MousePointerClick className="size-3.5" />
-          행을 클릭하면 아래에서 LOT 공정 흐름을 확인할 수 있습니다
+          카드를 클릭하면 아래에서 LOT 공정 흐름을 확인할 수 있습니다
         </p>
       )}
 
-      <DataTable
-        columns={columns}
+      <CardGrid
+        key={searchNonce}
         rows={rows}
         getRowKey={(r, i) => `${r.LOT_NO}-${i}`}
-        onRowClick={setSelectedRow}
-        isRowActive={(r) => r === selectedRow}
-        isLoading={isLoading || isFetching}
+        onCardClick={setSelectedRow}
+        isCardActive={(r) => r === selectedRow}
+        isLoading={showLoading}
         isError={isError}
+        renderCard={(row) => (
+          <>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-lg font-bold tracking-tight">{row.LOT_NO}</p>
+              <p className="shrink-0 text-xs text-muted-foreground">{row.WORK_DATE}</p>
+            </div>
+            <p className="mt-1 truncate text-sm text-muted-foreground" title={row.ITEM_NM}>
+              {row.ITEM_NM}
+            </p>
+            <div className="mt-3 flex items-start gap-1 border-t pt-3">
+              <StatusChip label="반제품 검사" value={row.COLOR_QUALITY} />
+              <StatusChip label="완제품 수집" value={row.APPEARANCE_QUALITY} />
+              <StatusChip label="큐빙정보" value={row.FINISHED_LOT} />
+            </div>
+          </>
+        )}
       />
 
       {selectedRow && <LotFlowVisualization lot={selectedRow} flowData={flow?.lot_flow_list} />}

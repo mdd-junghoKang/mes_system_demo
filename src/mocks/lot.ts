@@ -1,4 +1,4 @@
-import { dateRange, pick, randomBetween, randomInt } from "./utils"
+import { createRng, dateRange, pick, randomBetween, randomInt } from "./utils"
 import type { FlowTrackingResponse, LotTrackingResponse } from "@/types/lot"
 import type {
   AggCardRow,
@@ -19,21 +19,26 @@ export function mockLotList(
   query: string,
   field: "LOT_NO" | "MIX_NO" = "LOT_NO",
 ): LotTrackingResponse {
+  // query/field는 시드에서 뺀다 — 자동완성 후보(query="") 조회와 실제 검색(query="L...")
+  // 조회가 같은 날짜 범위라면 항상 같은 전체 목록에서 필터링돼야, 자동완성에서 고른
+  // LOT 번호가 검색했을 때 "없음"으로 나오는 일이 없다. 시드 없이 매번 랜덤이면
+  // 두 조회가 서로 다른 LOT 목록을 만들어내서 이 불일치가 생겼다.
+  const rng = createRng(`lot-list|${start}|${end}`)
   const days = dateRange(start, end)
   const rows = days.flatMap((day, di) =>
-    Array.from({ length: randomInt(1, 3) }, (_, i) => {
+    Array.from({ length: randomInt(1, 3, rng) }, (_, i) => {
       const lot = `L${day.replaceAll("-", "")}${String(i + 1).padStart(2, "0")}`
       return {
         WORK_DATE: day,
         LOT_NO: lot,
         MIX_NO: `MIX-${1000 + di * 10 + i}`,
         ITEM_CD: `ITM-${3000 + di}`,
-        ITEM_NM: pick(ITEM_NAMES),
+        ITEM_NM: pick(ITEM_NAMES, rng),
         ORDER_NO: `ORD-${4000 + di * 10 + i}`,
-        COLOR_QUALITY: pick(YN),
-        CURING_LOG: `${randomInt(18, 32)}℃`,
-        APPEARANCE_QUALITY: pick(YN),
-        FINISHED_LOT: pick(YN),
+        COLOR_QUALITY: pick(YN, rng),
+        CURING_LOG: `${randomInt(18, 32, rng)}℃`,
+        APPEARANCE_QUALITY: pick(YN, rng),
+        FINISHED_LOT: pick(YN, rng),
       }
     }),
   )
