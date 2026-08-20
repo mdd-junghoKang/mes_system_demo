@@ -27,8 +27,9 @@ export function GradationCurvePage() {
   const [drilldownBatch, setDrilldownBatch] = useState("")
 
   const aggInfoQuery = useAggInfo()
-  const lineFilter = (line: { AGG_INFO: string }) =>
-    dustOnly ? line.AGG_INFO.endsWith("_dust") : !line.AGG_INFO.endsWith("_dust")
+  // 라벨이 "석분 라인만 보기"이므로 체크 안 했을 때는 전체를 보여주고,
+  // 체크했을 때만 석분 라인으로 좁혀야 한다(반대로 안 하면 "만"의 의미가 없어진다).
+  const lineFilter = (line: { AGG_INFO: string }) => (dustOnly ? line.AGG_INFO === "석분" : true)
   const lines = aggInfoQuery.data ? sortedActiveLines(aggInfoQuery.data.agg_info).filter(lineFilter) : []
   const effectiveLine = selectedLine ?? lines[0]?.LINE_INFO ?? null
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Box, Package } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { AnimatedCard } from "@/components/shared/AnimatedCard"
@@ -55,37 +56,50 @@ export function ProductionMonitoringPage() {
 
       {/* 제품명/몰드명은 값 길이가 들쭉날쭉해서(예: "BLANDING STON 1 8T M") StatTile
           5개를 똑같은 폭으로 나란히 두면 긴 값만 줄바꿈되고 나머지 카드는 높이가
-          맞춰지느라 아래쪽에 빈 공간이 남는다. 이름+번호를 한 카드로 묶어 넓은 폭을
-          주고, truncate로 항상 한 줄을 유지해서 카드 높이가 흔들리지 않게 한다. */}
+          맞춰지느라 아래쪽에 빈 공간이 남는다. 이름+번호를 한 카드로 묶어 넓은 폭을 준다.
+          이름과 번호를 한 줄에 같이 넣으면 이름이 길 때 번호까지 같이 잘려서 안 보이므로,
+          번호는 따로 줄을 내려서 항상 전체가 보이게 하고 이름만 줄임표+툴팁으로 처리한다. */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2">
-          <AnimatedCard className="overflow-hidden">
-            <p className="text-[11px] text-muted-foreground">제품명 · 제품번호</p>
-            <p
-              className="mt-1 truncate text-lg font-semibold"
-              title={String(current?.["INJECT_002"] ?? "")}
-            >
-              {(current?.["INJECT_002"] as string) ?? "-"}
-              <span className="ml-1.5 text-sm font-normal text-muted-foreground">
-                ({(current?.["INJECT_001"] as string) ?? "-"})
+          <AnimatedCard className="overflow-hidden p-0">
+            <div className="h-1 bg-blue-500" />
+            <div className="p-4">
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Package className="size-3.5" />
+                제품명 · 제품번호
+              </p>
+              <p
+                className="mt-1 truncate text-lg font-semibold"
+                title={String(current?.["INJECT_002"] ?? "")}
+              >
+                {(current?.["INJECT_002"] as string) ?? "-"}
+              </p>
+              <span className="mt-1 inline-block truncate rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                {(current?.["INJECT_001"] as string) ?? "-"}
               </span>
-            </p>
+            </div>
           </AnimatedCard>
-          <AnimatedCard className="overflow-hidden">
-            <p className="text-[11px] text-muted-foreground">몰드명 · 몰드번호</p>
-            <p
-              className="mt-1 truncate text-lg font-semibold"
-              title={String(current?.["INJECT_006"] ?? "")}
-            >
-              {(current?.["INJECT_006"] as string) ?? "-"}
-              <span className="ml-1.5 text-sm font-normal text-muted-foreground">
-                ({(current?.["INJECT_005"] as string) ?? "-"})
+          <AnimatedCard className="overflow-hidden p-0">
+            <div className="h-1 bg-violet-500" />
+            <div className="p-4">
+              <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Box className="size-3.5" />
+                몰드명 · 몰드번호
+              </p>
+              <p
+                className="mt-1 truncate text-lg font-semibold"
+                title={String(current?.["INJECT_006"] ?? "")}
+              >
+                {(current?.["INJECT_006"] as string) ?? "-"}
+              </p>
+              <span className="mt-1 inline-block truncate rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                {(current?.["INJECT_005"] as string) ?? "-"}
               </span>
-            </p>
+            </div>
           </AnimatedCard>
         </div>
         <StatTile
-          label="사이클카운트"
+          label="사이클카운트 (회)"
           value={current ? Number(current["INJECT_003"] ?? 0) : undefined}
           accent="blue"
         />

@@ -35,24 +35,24 @@ export function LotHistoryPage() {
   // 스캔 시 바로 봐야 하는 값만 표에 남기고, 나머지 추적용 코드는 행을 클릭했을 때 보이는
   // "코드 정보"로 옮긴다 (컬럼이 많아 가로 스크롤이 생기던 문제 해결).
   const columns: DataTableColumn<LotTrackingRow>[] = [
-    { key: "date", header: "작업일", width: "1fr", render: (r) => r.WORK_DATE },
+    { key: "date", header: "작업일", width: "minmax(150px,1fr)", render: (r) => r.WORK_DATE },
     { key: "lot", header: "LOT No", width: "minmax(160px,1.1fr)", render: (r) => r.LOT_NO },
-    { key: "item_nm", header: "품명", width: "1.3fr", render: (r) => r.ITEM_NM },
+    { key: "item_nm", header: "품명", width: "minmax(180px,1.2fr)", render: (r) => r.ITEM_NM },
     {
       key: "color",
-      header: "반제품 검사 여부",
-      width: "minmax(150px,0.8fr)",
+      header: "반제품 검사",
+      width: "minmax(110px,0.8fr)",
       align: "center",
       render: (r) => r.COLOR_QUALITY,
     },
     {
       key: "appearance",
-      header: "완제품 수집여부",
-      width: "minmax(150px,0.8fr)",
+      header: "완제품 수집",
+      width: "minmax(110px,0.8fr)",
       align: "center",
       render: (r) => r.APPEARANCE_QUALITY,
     },
-    { key: "finished", header: "큐빙정보", width: "minmax(110px,0.8fr)", align: "center", render: (r) => r.FINISHED_LOT },
+    { key: "finished", header: "큐빙정보", width: "minmax(100px,0.8fr)", align: "center", render: (r) => r.FINISHED_LOT },
   ]
 
   return (

@@ -32,19 +32,19 @@ export function ForwardTrackingPage() {
   // 스캔 시 바로 봐야 하는 값만 표에 남기고, 작업지시번호/품번/배치번호는 행 클릭 시
   // 공정 흐름 패널에 뜨는 "코드 정보"로 옮긴다 (컬럼이 많아 가로 스크롤이 생기던 문제 해결).
   const columns: DataTableColumn<LotTrackingRow>[] = [
-    { key: "date", header: "작업일", width: "1fr", render: (r) => r.WORK_DATE },
+    { key: "date", header: "작업일", width: "minmax(150px,1fr)", render: (r) => r.WORK_DATE },
     { key: "lot", header: "LOT No", width: "minmax(160px,1.1fr)", render: (r) => r.LOT_NO },
-    { key: "item_nm", header: "품명", width: "1.5fr", render: (r) => r.ITEM_NM },
+    { key: "item_nm", header: "품명", width: "minmax(180px,1.5fr)", render: (r) => r.ITEM_NM },
     {
       key: "color",
-      header: "반제품 검사 여부",
+      header: "반제품 검사",
       width: "minmax(150px,0.8fr)",
       align: "center",
       render: (r) => r.COLOR_QUALITY,
     },
     {
       key: "appearance",
-      header: "완제품 수집여부",
+      header: "완제품 수집",
       width: "minmax(150px,0.8fr)",
       align: "center",
       render: (r) => r.APPEARANCE_QUALITY,
