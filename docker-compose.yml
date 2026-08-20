@@ -1,8 +1,0 @@
-services:
-  backend:
-    build: ./backend
-    env_file:
-      - ./backend/db/config/.env
-    ports:
-      - "8000:8000"
-    restart: unless-stopped

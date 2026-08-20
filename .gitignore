@@ -1,5 +1,4 @@
 # --- Secrets ---
-# Real DB/NAS credentials live here (backend/db/config/.env, backend/config/.env)
 .env
 *.env
 !.env.example
@@ -19,7 +18,7 @@ Thumbs.db
 # Claude Code's own working directory for this project — local to this machine
 .claude/
 
-# --- Node / frontend (monorepo-wide; frontend/ also has its own) ---
+# --- Node ---
 node_modules/
 dist/
 dist-ssr/
@@ -31,15 +30,3 @@ yarn-error.log*
 pnpm-debug.log*
 *.tsbuildinfo
 .eslintcache
-
-# --- Python / backend ---
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-env/
-build/
-.pytest_cache/
-.mypy_cache/
-.coverage
