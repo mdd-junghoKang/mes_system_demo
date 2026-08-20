@@ -39,7 +39,7 @@ export function ProductQualityPage() {
   // 스캔 시 바로 봐야 하는 값만 표에 남기고, 나머지(순번/일시/품번)는 이미 있는
   // "상세정보 보기" 모달로 옮긴다 (컬럼이 많아 LOT No/품명이 잘리던 문제 해결).
   const columns: DataTableColumn<ProductRow>[] = [
-    { key: "date", header: "일자", width: "120px", render: (r) => r.GET_DATE },
+    { key: "date", header: "일자", width: "150px", render: (r) => r.GET_DATE },
     { key: "lot_no", header: "LOT No", width: "1fr", render: (r) => r.LOT_NO },
     { key: "item_nm", header: "품명", width: "1.5fr", render: (r) => r.ITEM_NM },
     {
@@ -74,8 +74,8 @@ export function ProductQualityPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatTile label="Cycle Count" value={summary?.CYCLECOUNT} accent="blue" />
-        <StatTile label="LOT NG" value={lotNg} accent="red" />
+        <StatTile label="사이클 카운트 (회)" value={summary?.CYCLECOUNT} accent="blue" />
+        <StatTile label="불량품 수 (건)" value={lotNg} accent="red" />
       </div>
 
       <ChartCard
@@ -88,8 +88,8 @@ export function ProductQualityPage() {
         <CountBarChart
           labels={graph.map((d) => d.GET_DATE)}
           series={[
-            { label: "Cycle Count", data: graph.map((d) => d.CYCLECOUNT), color: "#636ae8" },
-            { label: "LOT NG", data: graph.map((d) => d.LOTNG), color: "#de3b40" },
+            { label: "사이클 카운트", data: graph.map((d) => d.CYCLECOUNT), color: "#636ae8" },
+            { label: "불량품 수", data: graph.map((d) => d.LOTNG), color: "#de3b40" },
           ]}
         />
       </ChartCard>

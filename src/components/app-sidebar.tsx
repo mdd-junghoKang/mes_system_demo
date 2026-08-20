@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { ChevronRight, LogOut } from "lucide-react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 
@@ -25,6 +26,27 @@ export function AppSidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { logout } = useAuth()
+
+  // Collapsible의 defaultOpen은 "처음 한 번만" 쓰이는 값인데, 매 렌더마다 현재
+  // 라우트로 다시 계산해서 넘기면 base-ui가 "uncontrolled → controlled 전환" 경고를
+  // 내고 그룹이 사용자 의도와 다르게 열리고 닫힐 수 있다. 그룹별 열림 상태를 직접
+  // 들고 있는 controlled 컴포넌트로 바꾸고, 활성 라우트가 속한 그룹만 자동으로 연다.
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(
+      navGroups.map((group) => [
+        group.label,
+        group.items.some((item) => location.pathname === item.path),
+      ]),
+    ),
+  )
+
+  useEffect(() => {
+    const activeGroup = navGroups.find((group) =>
+      group.items.some((item) => location.pathname === item.path),
+    )
+    if (!activeGroup) return
+    setOpenGroups((prev) => (prev[activeGroup.label] ? prev : { ...prev, [activeGroup.label]: true }))
+  }, [location.pathname])
 
   async function handleLogout() {
     await logout()
@@ -69,11 +91,16 @@ export function AppSidebar() {
 
         {navGroups.map((group) => {
           const Icon = group.icon
-          const isGroupActive = group.items.some((item) => location.pathname === item.path)
 
           return (
             <SidebarGroup key={group.label}>
-              <Collapsible defaultOpen={isGroupActive} className="group/collapsible">
+              <Collapsible
+                open={openGroups[group.label] ?? false}
+                onOpenChange={(open) =>
+                  setOpenGroups((prev) => ({ ...prev, [group.label]: open }))
+                }
+                className="group/collapsible"
+              >
                 <SidebarGroupLabel render={<CollapsibleTrigger className="flex w-full items-center gap-2" />}>
                   <Icon className="size-4" />
                   <span className="flex-1 text-left">{group.label}</span>

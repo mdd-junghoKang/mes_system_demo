@@ -93,9 +93,9 @@ export function SemiProductQualityPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatTile label="사이클 카운트" value={summary?.CYCLECOUNT} accent="blue" />
-        <StatTile label="불량 블록" value={summary?.BAD} accent="amber" />
-        <StatTile label="불량품 수" value={summary?.DEFECTIVE} accent="red" />
+        <StatTile label="사이클 카운트 (회)" value={summary?.CYCLECOUNT} accent="blue" />
+        <StatTile label="불량 블록 (건)" value={summary?.BAD} accent="amber" />
+        <StatTile label="불량품 수 (건)" value={summary?.DEFECTIVE} accent="red" />
       </div>
 
       <ChartCard
@@ -108,8 +108,8 @@ export function SemiProductQualityPage() {
         <CountBarChart
           labels={graph.map((d) => d.GET_DATE)}
           series={[
-            { label: "Cycle Count", data: graph.map((d) => d.CYCLECOUNT), color: "#4f7dd1" },
-            { label: "Defective Count", data: graph.map((d) => d.DEFECTIVE), color: "#d9534f" },
+            { label: "사이클 카운트", data: graph.map((d) => d.CYCLECOUNT), color: "#4f7dd1" },
+            { label: "불량품 수", data: graph.map((d) => d.DEFECTIVE), color: "#d9534f" },
           ]}
         />
       </ChartCard>

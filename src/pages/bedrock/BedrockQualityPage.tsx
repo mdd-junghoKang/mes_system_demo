@@ -86,10 +86,10 @@ export function BedrockQualityPage() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <StatTile label="정상상태" value={status?.NORMAL_RATE} suffix="%" accent="green" />
-        <StatTile label="주의레벨" value={status?.CAUTION_RATE} suffix="%" accent="amber" />
-        <StatTile label="위험레벨" value={status?.DANGER_RATE} suffix="%" accent="red" />
-        <StatTile label="총 검사량" value={status?.TOTAL_COUNT} suffix="건" accent="slate" />
+        <StatTile label="정상상태 (%)" value={status?.NORMAL_RATE} accent="green" />
+        <StatTile label="주의레벨 (%)" value={status?.CAUTION_RATE} accent="amber" />
+        <StatTile label="위험레벨 (%)" value={status?.DANGER_RATE} accent="red" />
+        <StatTile label="총 검사량 (건)" value={status?.TOTAL_COUNT} accent="slate" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
