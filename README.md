@@ -20,10 +20,22 @@ npm run dev
 
 ```
 inoblock_server/     # React + TypeScript + Vite + Tailwind v4 + shadcn/ui
-├─ src/mocks/     # 화면에 뿌려지는 더미 데이터 생성기
-├─ src/pages/     # 15개 화면
-├─ src/hooks/     # 데이터 훅 (지금은 전부 mocks/ 데이터를 반환)
+├─ src/mocks/          # 화면에 뿌려지는 더미 데이터 생성기
+├─ src/hooks/          # 데이터 훅 (지금은 전부 mocks/ 데이터를 반환)
+├─ src/pages/          # 화면 (사이드바 메뉴 기준으로 폴더 분리)
+│  ├─ login/
+│  ├─ main/            # 메인 대시보드
+│  ├─ aggregate/        # AI 골재 입도분석 (4종)
+│  ├─ bedrock/          # 기층몰탈 이물검사
+│  ├─ semi-product/     # 반제품 패턴/컬러검사
+│  ├─ product/          # 완제품 검사
+│  ├─ lot/              # LOT 추적관리 (3종)
+│  └─ monitoring/       # 실시간 모니터링 (3종)
 └─ src/components/
+   ├─ charts/    # recharts 래퍼 (여러 화면 공용)
+   ├─ lot/       # LOT 공정 흐름·카드 모달
+   ├─ shared/    # DataTable, StatTile 등 공용 UI
+   └─ ui/        # shadcn/ui 프리미티브
 ```
 
 ### 스크립트
