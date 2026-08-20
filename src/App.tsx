@@ -4,23 +4,22 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { AuthProvider } from "@/hooks/useAuth"
 import { ProtectedRoute } from "@/layouts/ProtectedRoute"
 import { AppShell } from "@/layouts/AppShell"
-import { LoginPage } from "@/pages/LoginPage"
-import { MainDashboardPage } from "@/pages/MainDashboardPage"
-import { SemiProductQualityPage } from "@/pages/SemiProductQualityPage"
-import { ProductQualityPage } from "@/pages/ProductQualityPage"
-import { BedrockQualityPage } from "@/pages/BedrockQualityPage"
-import { AggregateParticlePage } from "@/pages/AggregateParticlePage"
-import { GradationLookupPage } from "@/pages/GradationLookupPage"
-import { GradationCurvePage } from "@/pages/GradationCurvePage"
-import { GradationHistoryPage } from "@/pages/GradationHistoryPage"
-import { LotHistoryPage } from "@/pages/LotHistoryPage"
-import { ForwardTrackingPage } from "@/pages/ForwardTrackingPage"
-import { BackwardTrackingPage } from "@/pages/BackwardTrackingPage"
-import { ProductionMonitoringPage } from "@/pages/ProductionMonitoringPage"
-import { QualityMonitoringPage } from "@/pages/QualityMonitoringPage"
-import { MaterialMonitoringPage } from "@/pages/MaterialMonitoringPage"
-import { PlaceholderPage } from "@/pages/PlaceholderPage"
-import { mainNavItem, navGroups } from "@/data/navigation"
+import { LoginPage } from "@/pages/login/LoginPage"
+import { MainDashboardPage } from "@/pages/main/MainDashboardPage"
+import { SemiProductQualityPage } from "@/pages/semi-product/SemiProductQualityPage"
+import { ProductQualityPage } from "@/pages/product/ProductQualityPage"
+import { BedrockQualityPage } from "@/pages/bedrock/BedrockQualityPage"
+import { AggregateParticlePage } from "@/pages/aggregate/AggregateParticlePage"
+import { GradationLookupPage } from "@/pages/aggregate/GradationLookupPage"
+import { GradationCurvePage } from "@/pages/aggregate/GradationCurvePage"
+import { GradationHistoryPage } from "@/pages/aggregate/GradationHistoryPage"
+import { LotHistoryPage } from "@/pages/lot/LotHistoryPage"
+import { ForwardTrackingPage } from "@/pages/lot/ForwardTrackingPage"
+import { BackwardTrackingPage } from "@/pages/lot/BackwardTrackingPage"
+import { ProductionMonitoringPage } from "@/pages/monitoring/ProductionMonitoringPage"
+import { QualityMonitoringPage } from "@/pages/monitoring/QualityMonitoringPage"
+import { MaterialMonitoringPage } from "@/pages/monitoring/MaterialMonitoringPage"
+import { mainNavItem } from "@/data/navigation"
 import { Toaster } from "@/components/ui/sonner"
 
 const routeOverrides: Record<string, ReactNode> = {
@@ -39,10 +38,6 @@ const routeOverrides: Record<string, ReactNode> = {
   "/monitoring/materials": <MaterialMonitoringPage />,
 }
 
-const placeholderPaths = navGroups
-  .flatMap((group) => group.items.map((item) => item.path))
-  .filter((path) => !(path in routeOverrides))
-
 function App() {
   return (
     <AuthProvider>
@@ -55,9 +50,6 @@ function App() {
             <Route path={mainNavItem.path} element={<MainDashboardPage />} />
             {Object.entries(routeOverrides).map(([path, element]) => (
               <Route key={path} path={path} element={element} />
-            ))}
-            {placeholderPaths.map((path) => (
-              <Route key={path} path={path} element={<PlaceholderPage />} />
             ))}
           </Route>
         </Route>
