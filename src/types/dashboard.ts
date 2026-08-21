@@ -35,6 +35,7 @@ export type BedrockStatusResponse = {
   status_data?: {
     DANGER_RATE: number
     DANGER_COUNT: number
+    TOTAL_COUNT: number
   }
 }
 
@@ -44,6 +45,12 @@ export type BedrockGraphResponse = {
     CAUTION_COUNT: number
     DANGER_COUNT: number
   }[]
+}
+
+export type BedrockAlarmRow = {
+  WARNING_LEVEL: string
+  AREA_CM: number
+  TIME_AGO: string
 }
 
 export type SemiProductGraphResponse = {
@@ -66,6 +73,7 @@ export type MainDashboardData = {
   assemble: AssembleRateResponse
   aggGraph: AggGraphResponse
   bedStatus: BedrockStatusResponse
+  bedAlarms: BedrockAlarmRow[]
   bedGraph: BedrockGraphResponse
   semi: SemiProductGraphResponse
   product: ProductGraphResponse

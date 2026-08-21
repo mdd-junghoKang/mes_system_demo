@@ -20,7 +20,10 @@ export function AppShell() {
       <AppSidebar />
       <SidebarInset>
         <AppTopbar />
-        <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
+        {/* --muted가 원래 흰색에 가까운 회색(oklch 0.97)이라, /30 투명도까지 걸면
+            카드(bg-background, 흰색)와 거의 구분이 안 갔다. 배경/카드 계층을 눈에
+            보이게 분리하려고 전체 불투명도로 바꿨다. */}
+        <main className="flex-1 overflow-y-auto bg-muted p-6">
           <Outlet />
         </main>
       </SidebarInset>

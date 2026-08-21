@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts"
 
+import { ChartTooltip } from "./ChartTooltip"
 import { GRID_STROKE, LEGEND_STYLE } from "./utils"
 
 type Series = {
@@ -41,7 +42,7 @@ export function CountBarChart({ labels, series, yTitle = "건수" }: Props) {
         <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} width={44} allowDecimals={false}>
           <Label value={yTitle} position="top" offset={16} fontSize={11} fill="#6b7280" />
         </YAxis>
-        <Tooltip />
+        <Tooltip content={<ChartTooltip valueSuffix="건" />} />
         <Legend verticalAlign="bottom" iconSize={12} wrapperStyle={LEGEND_STYLE} />
         {series.map((s, si) => (
           <Bar

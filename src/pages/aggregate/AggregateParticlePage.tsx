@@ -121,6 +121,7 @@ export function AggregateParticlePage() {
             data={graphA.map((r) => r[2])}
             seriesLabel="F.M"
             yTitle="조립률 (%)"
+            valueSuffix="%"
             lowLine={lowLine}
             highLine={highLine}
           />
@@ -140,6 +141,7 @@ export function AggregateParticlePage() {
             data={graphP.map((r) => r[2])}
             seriesLabel="AVG_VALUE"
             yTitle="입형률 (%)"
+            valueSuffix="%"
           />
         </ChartCard>
       </div>

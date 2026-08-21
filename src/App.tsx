@@ -1,7 +1,6 @@
 import type { ReactNode } from "react"
 import { Navigate, Route, Routes } from "react-router-dom"
 
-import { AuthProvider } from "@/hooks/useAuth"
 import { ProtectedRoute } from "@/layouts/ProtectedRoute"
 import { AppShell } from "@/layouts/AppShell"
 import { LoginPage } from "@/pages/login/LoginPage"
@@ -19,6 +18,8 @@ import { BackwardTrackingPage } from "@/pages/lot/BackwardTrackingPage"
 import { ProductionMonitoringPage } from "@/pages/monitoring/ProductionMonitoringPage"
 import { QualityMonitoringPage } from "@/pages/monitoring/QualityMonitoringPage"
 import { MaterialMonitoringPage } from "@/pages/monitoring/MaterialMonitoringPage"
+import { StatsReportPage } from "@/pages/report/StatsReportPage"
+import { LineManagementPage } from "@/pages/system/LineManagementPage"
 import { mainNavItem } from "@/data/navigation"
 import { Toaster } from "@/components/ui/sonner"
 
@@ -36,11 +37,13 @@ const routeOverrides: Record<string, ReactNode> = {
   "/monitoring/production": <ProductionMonitoringPage />,
   "/monitoring/quality": <QualityMonitoringPage />,
   "/monitoring/materials": <MaterialMonitoringPage />,
+  "/report/summary": <StatsReportPage />,
+  "/system/lines": <LineManagementPage />,
 }
 
 function App() {
   return (
-    <AuthProvider>
+    <>
       <Toaster position="top-center" />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -56,7 +59,7 @@ function App() {
 
         <Route path="*" element={<Navigate to={mainNavItem.path} replace />} />
       </Routes>
-    </AuthProvider>
+    </>
   )
 }
 

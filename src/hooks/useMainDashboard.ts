@@ -23,6 +23,7 @@ export function useMainDashboardData(startIso: string, endIso: string, lineInput
         assemble: mockAssembleRate(seed),
         aggGraph: mockAggGraph(startIso, endIso, seed),
         bedStatus: { status_data: bedrock.status_data },
+        bedAlarms: bedrock.alarm_data ?? [],
         bedGraph: { chart_data: bedrock.chart_data ?? [] },
         semi: { graph_data: semi.graph_data ?? [] },
         product: { graph_data: product.graph_data ?? [] },

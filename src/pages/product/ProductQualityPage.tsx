@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Download } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChartCard } from "@/components/charts/ChartCard"
 import { CountBarChart } from "@/components/charts/CountBarChart"
-import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
+import { CardGrid } from "@/components/shared/CardGrid"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
 import { ProxyImage } from "@/components/shared/ProxyImage"
 import { StatTile } from "@/components/shared/StatTile"
+import { categoryAccentClass } from "@/lib/categoryColor"
 import { exportRowsToCsv } from "@/lib/csvExport"
 import { defaultDateRange } from "@/lib/dates"
 import { useProductData } from "@/hooks/useProductData"
@@ -19,6 +20,7 @@ export function ProductQualityPage() {
   const [draftRange, setDraftRange] = useState(initial)
   const [appliedRange, setAppliedRange] = useState(initial)
   const [selected, setSelected] = useState<ProductRow | null>(null)
+  const [searchNonce, setSearchNonce] = useState(0)
 
   const { data, isLoading, isFetching, isError } = useProductData(appliedRange.start, appliedRange.end)
 
@@ -35,25 +37,7 @@ export function ProductQualityPage() {
   )
 
   const selectedIndex = selected ? sortedRows.indexOf(selected) : -1
-
-  // 스캔 시 바로 봐야 하는 값만 표에 남기고, 나머지(순번/일시/품번)는 이미 있는
-  // "상세정보 보기" 모달로 옮긴다 (컬럼이 많아 LOT No/품명이 잘리던 문제 해결).
-  const columns: DataTableColumn<ProductRow>[] = [
-    { key: "date", header: "일자", width: "150px", render: (r) => r.GET_DATE },
-    { key: "lot_no", header: "LOT No", width: "1fr", render: (r) => r.LOT_NO },
-    { key: "item_nm", header: "품명", width: "1.5fr", render: (r) => r.ITEM_NM },
-    {
-      key: "detail",
-      header: "상세정보",
-      width: "100px",
-      align: "center",
-      render: (r) => (
-        <Button size="sm" variant="outline" onClick={() => setSelected(r)}>
-          보기
-        </Button>
-      ),
-    },
-  ]
+  const showLoading = isLoading || isFetching
 
   function handleExport() {
     exportRowsToCsv(
@@ -70,17 +54,20 @@ export function ProductQualityPage() {
         end={draftRange.end}
         onStartChange={(v) => setDraftRange((r) => ({ ...r, start: v }))}
         onEndChange={(v) => setDraftRange((r) => ({ ...r, end: v }))}
-        onSearch={() => setAppliedRange(draftRange)}
+        onSearch={() => {
+          setAppliedRange(draftRange)
+          setSearchNonce((n) => n + 1)
+        }}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatTile label="사이클 카운트 (회)" value={summary?.CYCLECOUNT} accent="blue" />
+        <StatTile label="사이클 카운트 (회)" value={summary?.CYCLECOUNT} accent="primary" />
         <StatTile label="불량품 수 (건)" value={lotNg} accent="red" />
       </div>
 
       <ChartCard
         title="완제품 검사이력"
-        isLoading={isLoading || isFetching}
+        isLoading={showLoading}
         isError={isError}
         isEmpty={graph.length === 0}
         height={300}
@@ -94,13 +81,34 @@ export function ProductQualityPage() {
         />
       </ChartCard>
 
-      <DataTable
-        columns={columns}
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
+          <Download className="size-3.5" />
+          내보내기
+        </Button>
+      </div>
+
+      <CardGrid
+        key={searchNonce}
         rows={sortedRows}
         getRowKey={(r, i) => `${r.ID}-${i}`}
-        onExport={handleExport}
-        isLoading={isLoading || isFetching}
+        onCardClick={setSelected}
+        accentClassName={(r) => categoryAccentClass(r.ITEM_NM || "")}
+        isLoading={showLoading}
         isError={isError}
+        renderCard={(row) => (
+          <div className="flex flex-col gap-3">
+            <p className="truncate text-lg font-bold tracking-tight" title={row.ITEM_NM || "품명 없음"}>
+              {row.ITEM_NM || "품명 없음"}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-sm text-muted-foreground">{row.LOT_NO}</p>
+              <p className="text-xs text-muted-foreground">
+                {row.GET_DATE} {row.GET_TIME}
+              </p>
+            </div>
+          </div>
+        )}
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>

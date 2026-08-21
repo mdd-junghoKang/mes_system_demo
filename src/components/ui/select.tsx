@@ -20,7 +20,10 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
-      className={cn("flex flex-1 text-left", className)}
+      // min-w-0이 없으면 flex 아이템은 내용 길이만큼 안 줄어들어서 truncate가
+      // 아무 효과가 없다 — 트리거 폭이 고정이라도 선택된 값(실제 데이터, 예:
+      // 품목명)이 길면 잘리지 않고 그대로 넘쳐버렸다.
+      className={cn("flex min-w-0 flex-1 items-center gap-1.5 truncate text-left", className)}
       {...props}
     />
   )

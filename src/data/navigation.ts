@@ -7,6 +7,8 @@ import {
   PackageCheck,
   Route,
   Activity,
+  BarChart3,
+  Settings,
 } from "lucide-react"
 
 export type NavLeaf = {
@@ -65,6 +67,16 @@ export const navGroups: NavGroup[] = [
       { label: "품질정보 모니터링", path: "/monitoring/quality" },
       { label: "원자재 사용량 관리", path: "/monitoring/materials" },
     ],
+  },
+  {
+    label: "통계/리포트",
+    icon: BarChart3,
+    items: [{ label: "통계 리포트", path: "/report/summary" }],
+  },
+  {
+    label: "시스템 관리",
+    icon: Settings,
+    items: [{ label: "라인/설비 관리", path: "/system/lines" }],
   },
 ]
 

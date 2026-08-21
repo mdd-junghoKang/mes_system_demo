@@ -9,6 +9,7 @@ import { StatusChip } from "@/components/shared/StatusChip"
 import { LotFlowVisualization } from "@/components/lot/LotFlowVisualization"
 import { useFlowTracking, useLotSearch } from "@/hooks/useLotTracking"
 import { defaultDateRange } from "@/lib/dates"
+import { lotAccentClass } from "@/lib/lotStatus"
 import type { LotTrackingRow } from "@/types/lot"
 
 export function ForwardTrackingPage() {
@@ -73,22 +74,23 @@ export function ForwardTrackingPage() {
         getRowKey={(r, i) => `${r.LOT_NO}-${i}`}
         onCardClick={setSelectedLot}
         isCardActive={(r) => r === selectedLot}
+        accentClassName={(r) => lotAccentClass([r.COLOR_QUALITY, r.APPEARANCE_QUALITY])}
         isLoading={showLoading}
         isError={isError}
         renderCard={(row) => (
-          <>
+          <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-lg font-bold tracking-tight">{row.LOT_NO}</p>
               <p className="shrink-0 text-xs text-muted-foreground">{row.WORK_DATE}</p>
             </div>
-            <p className="mt-1 truncate text-sm text-muted-foreground" title={row.ITEM_NM}>
+            <p className="truncate text-sm text-muted-foreground" title={row.ITEM_NM}>
               {row.ITEM_NM}
             </p>
-            <div className="mt-3 flex items-start gap-1 border-t pt-3">
+            <div className="flex items-start gap-1 border-t pt-3">
               <StatusChip label="반제품 검사" value={row.COLOR_QUALITY} />
               <StatusChip label="완제품 수집" value={row.APPEARANCE_QUALITY} />
             </div>
-          </>
+          </div>
         )}
       />
 

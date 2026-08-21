@@ -25,6 +25,17 @@ function distributionSeries(rows: Record<string, number>[] | undefined, valueFie
   return { labels: rows.map((r) => r[valueField]), counts: rows.map((r) => r.CNT) }
 }
 
+// 치수 요약 타일은 아래 SPC 차트와 같은 UCL/LCL 기준으로 판정한다 — 기준 없이
+// 그냥 파란색을 기본값으로 깔면 색이 아무 의미도 전달하지 못한다.
+function dimensionAccent(
+  value: number | undefined,
+  lcl: number | undefined,
+  ucl: number | undefined,
+): "green" | "red" | "slate" {
+  if (value === undefined || lcl === undefined || ucl === undefined) return "slate"
+  return value >= lcl && value <= ucl ? "green" : "red"
+}
+
 export function QualityMonitoringPage() {
   const initial = defaultDateRange()
   const [draftRange, setDraftRange] = useState(initial)
@@ -84,7 +95,7 @@ export function QualityMonitoringPage() {
           <div className="grid gap-1.5">
             <Label>품목</Label>
             <Select value={effectiveItemCd} onValueChange={(v) => v && setItemCd(v)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-60">
                 <SelectValue placeholder="품목 선택" />
               </SelectTrigger>
               <SelectContent>
@@ -103,13 +114,25 @@ export function QualityMonitoringPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <StatTile label="평균 치수1 (mm)" value={summary?.HEIGHT_1_AVG} accent="blue" />
-        <StatTile label="평균 치수2 (mm)" value={summary?.HEIGHT_2_AVG} accent="blue" />
-        <StatTile label="평균 치수3 (mm)" value={summary?.HEIGHT_3_AVG} accent="blue" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatTile
+          label="평균 치수1 (mm)"
+          value={summary?.HEIGHT_1_AVG}
+          accent={dimensionAccent(summary?.HEIGHT_1_AVG, limit?.LCL, limit?.UCL)}
+        />
+        <StatTile
+          label="평균 치수2 (mm)"
+          value={summary?.HEIGHT_2_AVG}
+          accent={dimensionAccent(summary?.HEIGHT_2_AVG, limit?.LCL, limit?.UCL)}
+        />
+        <StatTile
+          label="평균 치수3 (mm)"
+          value={summary?.HEIGHT_3_AVG}
+          accent={dimensionAccent(summary?.HEIGHT_3_AVG, limit?.LCL, limit?.UCL)}
+        />
         <StatTile label="평균 사이클타임 (sec)" value={summary?.CYCLE_TIME} accent="slate" />
         <StatTile label="평균 프레스타임 (sec)" value={summary?.PRESS_TIME} accent="slate" />
-        <StatTile label="평균 중량 (Kg)" value={summary?.WEIGHT} accent="green" />
+        <StatTile label="평균 중량 (Kg)" value={summary?.WEIGHT} accent="slate" />
       </div>
 
       <ChartCard
@@ -131,23 +154,11 @@ export function QualityMonitoringPage() {
         />
       </ChartCard>
       {limit && (
-        <div className="grid grid-cols-4 gap-4 text-center text-sm">
-          <div className="rounded-md border p-2">
-            <p className="text-muted-foreground">UCL</p>
-            <p className="font-semibold">{limit.UCL}</p>
-          </div>
-          <div className="rounded-md border p-2">
-            <p className="text-muted-foreground">평균</p>
-            <p className="font-semibold">{limit.AVG_VALUE}</p>
-          </div>
-          <div className="rounded-md border p-2">
-            <p className="text-muted-foreground">LCL</p>
-            <p className="font-semibold">{limit.LCL}</p>
-          </div>
-          <div className="rounded-md border p-2">
-            <p className="text-muted-foreground">CPK</p>
-            <p className="font-semibold">{limit.CPK}</p>
-          </div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <StatTile label="UCL" value={limit.UCL} accent="slate" />
+          <StatTile label="평균" value={limit.AVG_VALUE} accent="slate" />
+          <StatTile label="LCL" value={limit.LCL} accent="slate" />
+          <StatTile label="CPK" value={limit.CPK} accent="slate" />
         </div>
       )}
 

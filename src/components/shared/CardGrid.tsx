@@ -13,6 +13,15 @@ type Props<T> = {
   renderCard: (row: T) => ReactNode
   onCardClick?: (row: T) => void
   isCardActive?: (row: T) => boolean
+  /**
+   * 카드 상단 강조바 색(Tailwind bg-* 클래스). 장식이 아니라 그 카드의 실제 상태를
+   * 반영한다(합격/불량, 위험도 등) — StatTile의 accent bar와 같은 규칙을 카드뷰에도
+   * 적용해서, 흰 배경+회색 텍스트만 있던 카드가 색 정보 없이 밋밋해 보이던 걸 보완한다.
+   * 안 넘기면 브랜드 컬러를 옅게 준 중립 바가 나간다 — 실제 회색(border색)은 흰
+   * 배경 카드에서 거의 안 보여서 상태 필드가 없는 페이지(완제품 검사 등)의 카드가
+   * 밋밋해 보였다.
+   */
+  accentClassName?: (row: T) => string
   isLoading?: boolean
   isError?: boolean
   errorMessage?: string
@@ -35,6 +44,7 @@ export function CardGrid<T>({
   renderCard,
   onCardClick,
   isCardActive,
+  accentClassName,
   isLoading,
   isError,
   errorMessage = "일시적인 오류로 데이터를 불러오지 못했습니다",
@@ -93,11 +103,12 @@ export function CardGrid<T>({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: Math.min(i * 0.03, 0.3), ease: "easeOut" }}
               className={cn(
-                "rounded-2xl border bg-background p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+                "overflow-hidden rounded-2xl border bg-background p-0 text-left shadow-sm ring-1 ring-black/5 transition-all hover:-translate-y-0.5 hover:shadow-lg dark:ring-white/10",
                 active && "ring-2 ring-primary",
               )}
             >
-              {renderCard(row)}
+              <div className={cn("h-1", accentClassName?.(row) ?? "bg-primary/30")} />
+              <div className="p-4">{renderCard(row)}</div>
             </motion.button>
           )
         })}

@@ -39,7 +39,7 @@ export function ChartCard({
     >
       <Card className="flex flex-col">
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
             {Icon && <Icon className="size-4 text-muted-foreground" />}
             {title}
           {badge}

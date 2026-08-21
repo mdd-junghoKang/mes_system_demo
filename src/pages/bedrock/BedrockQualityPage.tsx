@@ -1,29 +1,32 @@
 import { useMemo, useState } from "react"
 import { AlertOctagon, AlertTriangle, ShieldAlert } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChartCard } from "@/components/charts/ChartCard"
 import { CountBarChart } from "@/components/charts/CountBarChart"
-import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
+import { CardGrid } from "@/components/shared/CardGrid"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
 import { ProxyImage } from "@/components/shared/ProxyImage"
 import { StatTile } from "@/components/shared/StatTile"
+import { StatusBadge } from "@/components/shared/StatusBadge"
 import { cn } from "@/lib/utils"
 import { defaultDateRange, formatCompactDate, formatCompactTime } from "@/lib/dates"
+import { STATUS_CONFIG, type StatusLevel } from "@/lib/status"
 import { useBedrockData } from "@/hooks/useBedrockData"
 import type { BedrockHistoryRow } from "@/types/bedrock"
 
 // 알람 피드는 "지금 뭐가 떴는지" 빠르게 훑어보는 위젯이지, 전체를 다 보여주는 용도가
 // 아니다. 실제 설비 이상 시 알람이 한꺼번에 몰릴 수 있어서 개수를 고정해두고, 전체
-// 이력은 아래 페이지네이션 표(정렬 가능)에서 보게 한다.
+// 이력은 아래 카드 목록(정렬 가능)에서 보게 한다.
 const ALARM_FEED_LIMIT = 5
 
-function levelBadgeClass(level: string) {
-  if (level === "DANGER") return "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-  if (level === "CAUTION") return "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-  return "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+// WARNING_LEVEL은 이 화면 고유의 원시값이라 공용 status.ts에는 안 두고, 여기서만
+// 공용 5단계(StatusLevel)로 매핑한다. 실제 색상/아이콘은 전부 status.ts 토큰을 쓴다.
+function warningToLevel(level: string): StatusLevel {
+  if (level === "DANGER") return "danger"
+  if (level === "CAUTION") return "caution"
+  return "normal"
 }
 
 export function BedrockQualityPage() {
@@ -31,49 +34,24 @@ export function BedrockQualityPage() {
   const [draftRange, setDraftRange] = useState(initial)
   const [appliedRange, setAppliedRange] = useState(initial)
   const [selected, setSelected] = useState<BedrockHistoryRow | null>(null)
+  const [dangerFirst, setDangerFirst] = useState(false)
+  const [searchNonce, setSearchNonce] = useState(0)
 
   const { data, isLoading, isFetching, isError } = useBedrockData(appliedRange.start, appliedRange.end)
 
   const status = data?.status_data
   const alarms = (data?.alarm_data ?? []).slice(0, ALARM_FEED_LIMIT)
   const chart = data?.chart_data ?? []
+  const showLoading = isLoading || isFetching
 
   const sortedHistory = useMemo(() => {
     const copy = [...(data?.history_data ?? [])]
     copy.sort((a, b) => `${b.GET_DATE}${b.GET_TIME}`.localeCompare(`${a.GET_DATE}${a.GET_TIME}`))
+    if (dangerFirst) {
+      copy.sort((a, b) => (a.WARNING_LEVEL === "DANGER" ? -1 : 0) - (b.WARNING_LEVEL === "DANGER" ? -1 : 0))
+    }
     return copy
-  }, [data])
-
-  const columns: DataTableColumn<BedrockHistoryRow>[] = [
-    { key: "date", header: "날짜", width: "1fr", render: (r) => formatCompactDate(r.GET_DATE) },
-    { key: "time", header: "시간", width: "1fr", render: (r) => formatCompactTime(r.GET_TIME) },
-    { key: "area", header: "이물 크기(cm)", width: "1fr", align: "right", render: (r) => r.AREA_CM },
-    {
-      key: "level",
-      header: "경고레벨",
-      width: "1fr",
-      align: "center",
-      // ag-grid 자체 정렬 기능을 그대로 쓴다 — 커스텀 토글 버튼 대신 sortValue만
-      // 넘기면 헤더 클릭으로 정렬되고, DANGER가 오름차순에서 먼저 오도록 값만 매핑한다.
-      sortValue: (r) => (r.WARNING_LEVEL === "DANGER" ? 0 : 1),
-      render: (r) => (
-        <Badge variant="secondary" className={levelBadgeClass(r.WARNING_LEVEL)}>
-          {r.WARNING_LEVEL}
-        </Badge>
-      ),
-    },
-    {
-      key: "image",
-      header: "이미지",
-      width: "1fr",
-      align: "center",
-      render: (r) => (
-        <Button size="sm" variant="outline" onClick={() => setSelected(r)}>
-          보기
-        </Button>
-      ),
-    },
-  ]
+  }, [data, dangerFirst])
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,7 +60,10 @@ export function BedrockQualityPage() {
         end={draftRange.end}
         onStartChange={(v) => setDraftRange((r) => ({ ...r, start: v }))}
         onEndChange={(v) => setDraftRange((r) => ({ ...r, end: v }))}
-        onSearch={() => setAppliedRange(draftRange)}
+        onSearch={() => {
+          setAppliedRange(draftRange)
+          setSearchNonce((n) => n + 1)
+        }}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
@@ -97,7 +78,7 @@ export function BedrockQualityPage() {
           <ChartCard
             title="기층몰탈 이물 검사이력"
             icon={ShieldAlert}
-            isLoading={isLoading || isFetching}
+            isLoading={showLoading}
             isError={isError}
             isEmpty={chart.length === 0}
             height={320}
@@ -113,10 +94,10 @@ export function BedrockQualityPage() {
         </div>
 
         <div className="flex h-full flex-col rounded-lg border bg-background">
-          <div className="flex items-center gap-2 border-b p-3 text-sm font-semibold">
+          <div className="flex items-center gap-2 border-b p-3">
             <AlertTriangle className="size-4 text-muted-foreground" />
-            알람 피드
-            <span className="font-normal text-muted-foreground">최근 {ALARM_FEED_LIMIT}건</span>
+            <span className="text-lg font-semibold">알람 피드</span>
+            <span className="text-sm text-muted-foreground">최근 {ALARM_FEED_LIMIT}건</span>
           </div>
           <div className="flex flex-1 flex-col justify-center gap-2.5 p-3">
             {alarms.length === 0 ? (
@@ -125,22 +106,16 @@ export function BedrockQualityPage() {
               alarms.map((alarm, i) => {
                 const isDanger = alarm.WARNING_LEVEL === "DANGER"
                 const Icon = isDanger ? AlertOctagon : AlertTriangle
+                const level = warningToLevel(alarm.WARNING_LEVEL)
                 return (
                   <div
                     key={i}
                     className={cn(
                       "flex items-center gap-3 rounded-md p-3 text-sm",
-                      isDanger
-                        ? "bg-red-50 dark:bg-red-950/40"
-                        : "bg-amber-50 dark:bg-amber-950/40",
+                      isDanger ? "bg-red-50 dark:bg-red-950/40" : "bg-amber-50 dark:bg-amber-950/40",
                     )}
                   >
-                    <Icon
-                      className={cn(
-                        "size-4 shrink-0",
-                        isDanger ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400",
-                      )}
-                    />
+                    <Icon className={cn("size-4 shrink-0", STATUS_CONFIG[level].textClassName)} />
                     <span className="flex-1 font-medium">
                       이물 <span className="tabular-nums">{alarm.AREA_CM}cm</span> 감지
                     </span>
@@ -153,12 +128,31 @@ export function BedrockQualityPage() {
         </div>
       </div>
 
-      <DataTable
-        columns={columns}
+      <label className="flex items-center gap-2 text-sm">
+        <Checkbox checked={dangerFirst} onCheckedChange={(v) => setDangerFirst(v === true)} />
+        위험(DANGER) 먼저 보기
+      </label>
+
+      <CardGrid
+        key={searchNonce}
         rows={sortedHistory}
         getRowKey={(r, i) => `${r.GET_DATE}-${r.GET_TIME}-${i}`}
-        isLoading={isLoading || isFetching}
+        onCardClick={setSelected}
+        accentClassName={(r) => STATUS_CONFIG[warningToLevel(r.WARNING_LEVEL)].accentClassName}
+        isLoading={showLoading}
         isError={isError}
+        renderCard={(row) => (
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-muted-foreground">
+              {formatCompactDate(row.GET_DATE)} {formatCompactTime(row.GET_TIME)}
+            </p>
+            <p className="text-3xl font-bold tracking-tight">
+              {row.AREA_CM}
+              <span className="ml-1 text-sm font-normal text-muted-foreground">cm</span>
+            </p>
+            <StatusBadge level={warningToLevel(row.WARNING_LEVEL)} label={row.WARNING_LEVEL} className="w-fit" />
+          </div>
+        )}
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
@@ -167,9 +161,7 @@ export function BedrockQualityPage() {
             <DialogTitle className="flex items-center gap-2">
               {selected && formatCompactDate(selected.GET_DATE)} {selected && formatCompactTime(selected.GET_TIME)}
               {selected && (
-                <Badge variant="secondary" className={levelBadgeClass(selected.WARNING_LEVEL)}>
-                  {selected.WARNING_LEVEL}
-                </Badge>
+                <StatusBadge level={warningToLevel(selected.WARNING_LEVEL)} label={selected.WARNING_LEVEL} />
               )}
             </DialogTitle>
           </DialogHeader>

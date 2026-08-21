@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Gauge, Search } from "lucide-react"
+import { Gauge, Ruler, Search } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import { ChartCard } from "@/components/charts/ChartCard"
 import { TrendLineChart } from "@/components/charts/TrendLineChart"
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
 import { LineSelector } from "@/components/shared/LineSelector"
+import { StatTile } from "@/components/shared/StatTile"
 import { useAggInfo, sortedActiveLines } from "@/hooks/useAggInfo"
 import { type AssembleType, useBatchImages, useGradationLookup } from "@/hooks/useGradationLookup"
 import { copyImagePath } from "@/lib/imageProxy"
@@ -96,18 +97,18 @@ export function GradationLookupPage() {
       {assembleType !== "select-none" && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">조립률</p>
-              <p className="mt-1 text-2xl font-semibold">
-                {rate?.FINENESS_MODULUS !== undefined ? `${rate.FINENESS_MODULUS}%` : "해당되는 데이터가 없습니다"}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">입형률</p>
-              <p className="mt-1 text-2xl font-semibold">
-                {rate?.SHAPE_INDEX !== undefined ? `${rate.SHAPE_INDEX}%` : "해당되는 데이터가 없습니다"}
-              </p>
-            </div>
+            <StatTile
+              label="조립률 (%)"
+              value={rate?.FINENESS_MODULUS}
+              accent="primary"
+              icon={<Gauge className="size-5" />}
+            />
+            <StatTile
+              label="입형률 (%)"
+              value={rate?.SHAPE_INDEX}
+              accent="slate"
+              icon={<Ruler className="size-5" />}
+            />
           </div>
 
           <ChartCard
@@ -123,6 +124,7 @@ export function GradationLookupPage() {
               data={graph.map((r) => r.AVG_VALUE ?? 0)}
               seriesLabel="AVG_VALUE"
               yTitle={`${chartTitle} (%)`}
+              valueSuffix="%"
               lowLine={lowLine}
               highLine={highLine}
             />

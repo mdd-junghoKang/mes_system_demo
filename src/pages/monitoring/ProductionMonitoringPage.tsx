@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Box, Package } from "lucide-react"
+import { Box, Package, Timer, Weight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { AnimatedCard } from "@/components/shared/AnimatedCard"
@@ -101,28 +101,30 @@ export function ProductionMonitoringPage() {
         <StatTile
           label="사이클카운트 (회)"
           value={current ? Number(current["INJECT_003"] ?? 0) : undefined}
-          accent="blue"
+          accent="primary"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <AnimatedCard>
-          <p className="text-sm text-muted-foreground">중량</p>
-          <p className="mt-1 text-2xl font-semibold">{current?.["INJECT_193"] ?? "-"} Kg</p>
-        </AnimatedCard>
+        <StatTile
+          label="중량 (Kg)"
+          value={current ? Number(current["INJECT_193"] ?? 0) : undefined}
+          accent="slate"
+          icon={<Weight className="size-5" />}
+        />
         <div className="grid grid-cols-2 gap-4">
-          <AnimatedCard>
-            <p className="text-sm text-muted-foreground">사이클 타임</p>
-            <p className="mt-1 text-2xl font-semibold">
-              {current ? formatScaled(Number(current["INJECT_106"] ?? 0)) : "-"}s
-            </p>
-          </AnimatedCard>
-          <AnimatedCard>
-            <p className="text-sm text-muted-foreground">프레스 타임</p>
-            <p className="mt-1 text-2xl font-semibold">
-              {current ? formatScaled(Number(current["INJECT_107"] ?? 0)) : "-"}s
-            </p>
-          </AnimatedCard>
+          <StatTile
+            label="사이클 타임 (s)"
+            value={current ? formatScaled(Number(current["INJECT_106"] ?? 0)) : undefined}
+            accent="slate"
+            icon={<Timer className="size-5" />}
+          />
+          <StatTile
+            label="프레스 타임 (s)"
+            value={current ? formatScaled(Number(current["INJECT_107"] ?? 0)) : undefined}
+            accent="slate"
+            icon={<Timer className="size-5" />}
+          />
         </div>
       </div>
 

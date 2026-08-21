@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react"
+import { Factory } from "lucide-react"
 import { Navigate, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
-import logo from "@/assets/logo.png"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/store/useAuth"
 import { sleep } from "@/mocks/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,8 +55,10 @@ export function LoginPage() {
     <div className="flex min-h-svh items-center justify-center bg-muted/40 p-6">
       <Card className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
-          <img src={logo} alt="Inoblock" className="mb-2 h-11 w-auto object-contain" />
-          <CardTitle className="text-xl">Inoblock A-QMS</CardTitle>
+          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <Factory className="size-5" />
+          </div>
+          <CardTitle className="text-xl">옥천산업 A-QMS</CardTitle>
           <CardDescription>품질관리 시스템에 로그인하세요</CardDescription>
         </CardHeader>
         <CardContent>

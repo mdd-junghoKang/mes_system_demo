@@ -1,19 +1,25 @@
 import { useMemo, useState } from "react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Download } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChartCard } from "@/components/charts/ChartCard"
 import { CountBarChart } from "@/components/charts/CountBarChart"
-import { DataTable, type DataTableColumn } from "@/components/shared/DataTable"
+import { CardGrid } from "@/components/shared/CardGrid"
 import { DateRangeSearchBar } from "@/components/shared/DateRangeSearchBar"
 import { ProxyImage } from "@/components/shared/ProxyImage"
 import { StatTile } from "@/components/shared/StatTile"
+import { StatusBadge } from "@/components/shared/StatusBadge"
 import { exportRowsToCsv } from "@/lib/csvExport"
 import { defaultDateRange } from "@/lib/dates"
+import { STATUS_CONFIG, type StatusLevel } from "@/lib/status"
 import { useSemiProductData } from "@/hooks/useSemiProductData"
 import type { SemiProductRow } from "@/types/semiProduct"
+
+function resultToLevel(result: string): StatusLevel {
+  return result === "NG" ? "danger" : "normal"
+}
 
 export function SemiProductQualityPage() {
   const initial = defaultDateRange()
@@ -21,6 +27,7 @@ export function SemiProductQualityPage() {
   const [appliedRange, setAppliedRange] = useState(initial)
   const [sortResultFirst, setSortResultFirst] = useState(false)
   const [selected, setSelected] = useState<SemiProductRow | null>(null)
+  const [searchNonce, setSearchNonce] = useState(0)
 
   const { data, isLoading, isFetching, isError } = useSemiProductData(appliedRange.start, appliedRange.end)
 
@@ -37,42 +44,7 @@ export function SemiProductQualityPage() {
   }, [data, sortResultFirst])
 
   const selectedIndex = selected ? sortedRows.indexOf(selected) : -1
-
-  // 스캔 시 바로 봐야 하는 값만 표에 남기고, 나머지(작업시간/순번/품번)는 이미 있는
-  // "상세정보 보기" 모달로 옮긴다 (컬럼이 많아 LOT No/품명이 잘리던 문제 해결).
-  const columns: DataTableColumn<SemiProductRow>[] = [
-    { key: "date", header: "작업일", width: "1fr", render: (r) => r.GET_DATE },
-    { key: "item_nm", header: "품명", width: "1.4fr", render: (r) => r.ITEM_NM },
-    { key: "lot_no", header: "LOT No", width: "1.2fr", render: (r) => r.LOT_NO },
-    {
-      key: "result",
-      width: "1fr",
-      align: "center",
-      header: (
-        <button
-          type="button"
-          className="underline-offset-2 hover:underline"
-          onClick={() => setSortResultFirst((v) => !v)}
-        >
-          합격여부
-        </button>
-      ),
-      render: (r) => (
-        <span className={r.RESULT === "NG" ? "font-medium text-red-600" : ""}>{r.RESULT}</span>
-      ),
-    },
-    {
-      key: "detail",
-      header: "상세정보",
-      width: "0.8fr",
-      align: "center",
-      render: (r) => (
-        <Button size="sm" variant="outline" onClick={() => setSelected(r)}>
-          보기
-        </Button>
-      ),
-    },
-  ]
+  const showLoading = isLoading || isFetching
 
   function handleExport() {
     exportRowsToCsv(
@@ -89,7 +61,10 @@ export function SemiProductQualityPage() {
         end={draftRange.end}
         onStartChange={(v) => setDraftRange((r) => ({ ...r, start: v }))}
         onEndChange={(v) => setDraftRange((r) => ({ ...r, end: v }))}
-        onSearch={() => setAppliedRange(draftRange)}
+        onSearch={() => {
+          setAppliedRange(draftRange)
+          setSearchNonce((n) => n + 1)
+        }}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -100,7 +75,7 @@ export function SemiProductQualityPage() {
 
       <ChartCard
         title="반제품 품질 검사이력"
-        isLoading={isLoading || isFetching}
+        isLoading={showLoading}
         isError={isError}
         isEmpty={graph.length === 0}
         height={300}
@@ -114,13 +89,42 @@ export function SemiProductQualityPage() {
         />
       </ChartCard>
 
-      <DataTable
-        columns={columns}
+      <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox
+            checked={sortResultFirst}
+            onCheckedChange={(v) => setSortResultFirst(v === true)}
+          />
+          불량(NG) 먼저 보기
+        </label>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
+          <Download className="size-3.5" />
+          내보내기
+        </Button>
+      </div>
+
+      <CardGrid
+        key={searchNonce}
         rows={sortedRows}
         getRowKey={(r, i) => `${r.GET_DATE}-${r.GET_TIME}-${i}`}
-        onExport={handleExport}
-        isLoading={isLoading || isFetching}
+        onCardClick={setSelected}
+        accentClassName={(r) => STATUS_CONFIG[resultToLevel(r.RESULT)].accentClassName}
+        isLoading={showLoading}
         isError={isError}
+        renderCard={(row) => (
+          <div className="flex flex-col gap-3">
+            <p className="truncate text-lg font-bold tracking-tight" title={row.ITEM_NM}>
+              {row.ITEM_NM}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-sm text-muted-foreground">{row.LOT_NO}</p>
+              <p className="text-xs text-muted-foreground">
+                {row.GET_DATE} {row.GET_TIME}
+              </p>
+            </div>
+            <StatusBadge level={resultToLevel(row.RESULT)} label={row.RESULT} className="w-fit" />
+          </div>
+        )}
       />
 
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
@@ -129,9 +133,7 @@ export function SemiProductQualityPage() {
             <div className="flex items-center justify-between">
               <DialogTitle className="flex items-center gap-2">
                 {selected?.ITEM_NM}
-                <Badge variant={selected?.RESULT === "NG" ? "destructive" : "secondary"}>
-                  {selected?.RESULT}
-                </Badge>
+                {selected && <StatusBadge level={resultToLevel(selected.RESULT)} label={selected.RESULT} />}
               </DialogTitle>
               <div className="flex gap-1">
                 <Button
