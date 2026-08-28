@@ -30,3 +30,9 @@ yarn-error.log*
 pnpm-debug.log*
 *.tsbuildinfo
 .eslintcache
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
