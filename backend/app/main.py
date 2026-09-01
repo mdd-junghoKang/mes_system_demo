@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -7,19 +6,11 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import settings
-from app.database import engine
-from app.models import Base
 from app.routers import aggregate, auth, bedrock, dashboard, lot, monitoring, product, semi_product
 
+# table creation/changes are now managed by Alembic migrations (see backend/alembic/), not on app startup
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-
-
-app = FastAPI(title="A-QMS API", lifespan=lifespan)
+app = FastAPI(title="A-QMS API")
 
 app.add_middleware(
     CORSMiddleware,

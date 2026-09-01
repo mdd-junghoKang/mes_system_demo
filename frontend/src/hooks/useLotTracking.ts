@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
-import { mockFlowTracking } from "@/mocks/lot"
-import { sleep } from "@/mocks/utils"
 import { api } from "@/lib/api"
-import type { LotTrackingResponse } from "@/types/lot"
+import type { FlowTrackingResponse, LotTrackingResponse } from "@/types/lot"
 
 async function fetchLotTracking(
   start: string,
@@ -31,12 +29,12 @@ export function useMixSearch(mixerNo: string, startIso: string, endIso: string) 
 }
 
 export function useFlowTracking(lotNo: string | null) {
-  return useQuery({
+  return useQuery<FlowTrackingResponse>({
     queryKey: ["flow-tracking", lotNo],
     enabled: Boolean(lotNo),
     queryFn: async () => {
-      await sleep(200)
-      return mockFlowTracking(lotNo ?? "")
+      const res = await api.get<FlowTrackingResponse>(`/lot/flow/${lotNo}`)
+      return res.data
     },
   })
 }

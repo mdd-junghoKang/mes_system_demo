@@ -59,6 +59,7 @@ class AggregateMeasurement(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     line_info: Mapped[str] = mapped_column(String(20))
     batch_no: Mapped[str] = mapped_column(String(30))
+    lot_no: Mapped[str | None] = mapped_column(String(50))
     gathering_time: Mapped[datetime] = mapped_column(DateTime)
     a_value: Mapped[float]
     p_value: Mapped[float]
@@ -85,6 +86,10 @@ class SemiProductInspection(Base):
     img_path: Mapped[str] = mapped_column(String(255), default="")
     color_data: Mapped[str] = mapped_column(String(255), default="")
     defect_data: Mapped[str] = mapped_column(String(255), default="")
+    item_gn: Mapped[str | None] = mapped_column(String(50))
+    item_sn: Mapped[str | None] = mapped_column(String(50))
+    cycle_id: Mapped[str | None] = mapped_column(String(50))
+    cycle_state: Mapped[str | None] = mapped_column(String(10))
 
 
 class ProductInspection(Base):
@@ -105,6 +110,7 @@ class MaterialBatchEntry(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     recorded_at: Mapped[datetime] = mapped_column(DateTime)
+    lot_no: Mapped[str | None] = mapped_column(String(50))
     gubun: Mapped[str] = mapped_column(String(20))
     mat_name: Mapped[str] = mapped_column(String(50))
     set_qty: Mapped[float]
@@ -128,6 +134,23 @@ class ProductionSnapshot(Base):
     weight: Mapped[float]
     zone_thickness: Mapped[dict] = mapped_column(JSON, default=dict)
     motion_speeds: Mapped[dict] = mapped_column(JSON, default=dict)
+    lot_no: Mapped[str | None] = mapped_column(String(50))
+    item_cd: Mapped[str | None] = mapped_column(String(50))
+    order_no: Mapped[str | None] = mapped_column(String(50))
+
+
+class CuringLog(Base):
+    __tablename__ = "curing_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    lot_no: Mapped[str] = mapped_column(String(50))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime)
+    zone_1: Mapped[float]
+    zone_2: Mapped[float]
+    zone_3: Mapped[float]
+    zone_4: Mapped[float]
+    zone_5: Mapped[float]
+    zone_6: Mapped[float]
 
 
 class QualityMeasurement(Base):
